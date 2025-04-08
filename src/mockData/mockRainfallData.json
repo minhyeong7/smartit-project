@@ -1,0 +1,35 @@
+[
+    {
+      "fcst_time": "00:00",
+      "rainfall_value": 0
+    },
+    {
+      "fcst_time": "03:00",
+      "rainfall_value": 0.5
+    },
+    {
+      "fcst_time": "06:00",
+      "rainfall_value": 40
+    },
+    {
+      "fcst_time": "09:00",
+      "rainfall_value": 60
+    },
+    {
+      "fcst_time": "12:00",
+      "rainfall_value": 0
+    },
+    {
+      "fcst_time": "15:00",
+      "rainfall_value": 0.5
+    },
+    {
+      "fcst_time": "18:00",
+      "rainfall_value": 40
+    },
+    {
+      "fcst_time": "21:00",
+      "rainfall_value": 60
+    }
+  ]
+  

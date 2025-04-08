@@ -1,0 +1,46 @@
+{
+  "current_weather": {
+    "2024-12-05 09:00": {
+      "T1H": { "category": "T1H", "value": "8.0" },
+      "SKY": { "category": "SKY", "value": "1" },
+      "PTY": { "category": "PTY", "value": "0" },
+      "RN1": { "category": "RN1", "value": "0.0" },
+      "REH": { "category": "REH", "value": "50" },
+      "LGT": { "category": "LGT", "value": "0" },
+      "WSD": { "category": "WSD", "value": "2.5" },
+      "VEC": { "category": "VEC", "value": "90" }
+    },
+    "2024-12-05 12:00": {
+      "T1H": { "category": "T1H", "value": "10.5" },
+      "SKY": { "category": "SKY", "value": "3" },
+      "PTY": { "category": "PTY", "value": "0" },
+      "RN1": { "category": "RN1", "value": "0.0" },
+      "REH": { "category": "REH", "value": "45" },
+      "LGT": { "category": "LGT", "value": "0" },
+      "WSD": { "category": "WSD", "value": "3.0" },
+      "VEC": { "category": "VEC", "value": "120" }
+    }
+  },
+  "forecast": {
+    "2024-12-05 15:00": {
+      "T1H": { "category": "T1H", "value": "12.0" },
+      "SKY": { "category": "SKY", "value": "4" },
+      "PTY": { "category": "PTY", "value": "1" },
+      "RN1": { "category": "RN1", "value": "1.2" },
+      "REH": { "category": "REH", "value": "60" },
+      "LGT": { "category": "LGT", "value": "0" },
+      "WSD": { "category": "WSD", "value": "4.0" },
+      "VEC": { "category": "VEC", "value": "150" }
+    },
+    "2024-12-05 18:00": {
+      "T1H": { "category": "T1H", "value": "9.5" },
+      "SKY": { "category": "SKY", "value": "4" },
+      "PTY": { "category": "PTY", "value": "0" },
+      "RN1": { "category": "RN1", "value": "0.0" },
+      "REH": { "category": "REH", "value": "70" },
+      "LGT": { "category": "LGT", "value": "0" },
+      "WSD": { "category": "WSD", "value": "3.5" },
+      "VEC": { "category": "VEC", "value": "180" }
+    }
+  }
+}

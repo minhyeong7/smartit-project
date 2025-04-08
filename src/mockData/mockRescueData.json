@@ -1,0 +1,73 @@
+[
+    {
+      "location": "서울 강남구",
+      "date": "2025-02-25",
+      "receiver": "119",
+      "message": "화재 발생, 긴급 출동 요청",
+      "status": "처리 완료"
+    },
+    {
+      "location": "부산 해운대구",
+      "date": "2025-02-24",
+      "receiver": "119",
+      "message": "익수 사고 발생, 구조 요청",
+      "status": "대기 중"
+    },
+    {
+      "location": "대구 중구",
+      "date": "2025-02-23",
+      "receiver": "119",
+      "message": "교통사고 발생, 부상자 있음",
+      "status": "접수 완료"
+    },
+    {
+      "location": "인천 연수구",
+      "date": "2025-02-22",
+      "receiver": "119",
+      "message": "건물 붕괴 위험 신고",
+      "status": "조치 중"
+    },
+    {
+      "location": "광주 북구",
+      "date": "2025-02-21",
+      "receiver": "119",
+      "message": "산불 발생, 긴급 출동 요청",
+      "status": "처리 완료"
+    },
+    {
+      "location": "대전 서구",
+      "date": "2025-02-20",
+      "receiver": "119",
+      "message": "가스 누출 신고",
+      "status": "접수 완료"
+    },
+    {
+      "location": "울산 남구",
+      "date": "2025-02-19",
+      "receiver": "119",
+      "message": "공장 화재 발생",
+      "status": "대기 중"
+    },
+    {
+      "location": "수원 영통구",
+      "date": "2025-02-18",
+      "receiver": "119",
+      "message": "엘리베이터 갇힘 사고",
+      "status": "조치 중"
+    },
+    {
+      "location": "창원 의창구",
+      "date": "2025-02-17",
+      "receiver": "119",
+      "message": "고층 건물 투신 시도 신고",
+      "status": "접수 완료"
+    },
+    {
+      "location": "제주 서귀포시",
+      "date": "2025-02-16",
+      "receiver": "119",
+      "message": "강풍 피해 구조 요청",
+      "status": "처리 완료"
+    }
+  ]
+  
