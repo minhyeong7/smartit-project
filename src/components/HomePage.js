@@ -6,7 +6,7 @@ import RescueList from "./RescueList";
 
 
 export default function HomePage() {
-  
+  // 테스트
 
   return (
     <div className="flex flex-col items-center justify-center">
