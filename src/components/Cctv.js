@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { wsProtocol, wsHost } from '../service/header';
 
 function WebSocketVideoTest() {
   const [videoStreams, setVideoStreams] = useState({});
+  const [fullScreenStream, setFullScreenStream] = useState(null); // 전체화면용 상태
+  const [focusedSlot, setFocusedSlot] = useState(null);
+  const [activeControls, setActiveControls] = useState({});
+  const [selectedCamera, setSelectedCamera] = useState(null); // 선택된 카메라 상태 추가
+  
   const wsConnectionsRef = useRef({});
-  const blobUrlsRef = useRef({});  // Blob URL 추적을 위한 ref
+  const blobUrlsRef = useRef({});
+  const connectionsInitializedRef = useRef(false);
   
   const cameras = [
     { id: 'CCTV001', name: '고양시청', type: 'original' },
@@ -12,20 +18,161 @@ function WebSocketVideoTest() {
     { id: 'CCTV002', name: '제주시청', type: 'original' },
     { id: 'CCTV002', name: '제주시청', type: 'ai' },
   ];
+
+  // 디버그 로그 함수
+  const debugLog = useCallback((message) => {
+    console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
+  }, []);
+
+  // 카메라 제어 함수 - 방향 명령 한 번만 보내기
+  const controlCamera = useCallback((streamId, direction) => {
+    const socket = wsConnectionsRef.current[streamId];
+    const camera = cameras.find(cam => 
+      `${cam.id}-${cam.type}` === streamId
+    );
+
+    // 이미 같은 방향의 컨트롤이 활성화되어 있는지 확인
+    if (activeControls[streamId] === direction) {
+      debugLog(`컨트롤 무시: 슬롯 ${streamId}에 이미 ${direction} 방향이 활성화됨`);
+      return;
+    }
+
+    // 웹소켓 연결 확인
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      // 명령 전송 (한 번만)
+      const controlMessage = {
+        type: 'camera_control',
+        direction: direction
+      };
+
+      socket.send(JSON.stringify(controlMessage));
+      console.log(`전송한 메시지: ${JSON.stringify(controlMessage)}`);
+      debugLog(`카메라 제어 명령 전송: ${camera?.name} - ${direction}`);
+
+      // 활성화된 컨트롤 상태 업데이트
+      setActiveControls(prev => ({
+        ...prev,
+        [streamId]: direction
+      }));
+    } else {
+      debugLog(`웹소켓 연결 상태 오류: ${streamId}`);
+    }
+  }, [cameras, activeControls, debugLog]);
+
+  // 카메라 정지 함수
+  const stopCamera = useCallback((streamId) => {
+    const socket = wsConnectionsRef.current[streamId];
+    const camera = cameras.find(cam => 
+      `${cam.id}-${cam.type}` === streamId
+    );
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      // 정지 명령 전송
+      const stopMessage = {
+        type: 'camera_control',
+        direction: 'stop'
+      };
+
+      socket.send(JSON.stringify(stopMessage));
+      console.log(`전송한 정지 메시지: ${JSON.stringify(stopMessage)}`);
+      debugLog(`카메라 정지 명령 전송: ${camera?.name}`);
+
+      // 활성화된 컨트롤 상태 제거
+      setActiveControls(prev => {
+        const newControls = {...prev};
+        delete newControls[streamId];
+        return newControls;
+      });
+    } else {
+      debugLog(`웹소켓 연결 상태 오류: ${streamId}`);
+    }
+  }, [cameras, debugLog]);
   
-  const connectToCamera = (camera) => {
+  // 카메라 선택 처리 함수
+  const handleCameraSelect = (streamId) => {
+    if (videoStreams[streamId]) { // 연결된 카메라만 선택 가능
+      setSelectedCamera(streamId);
+      debugLog(`카메라 선택됨: ${streamId}`);
+    }
+  };
+
+  // 영역 경계와 관련된 표시
+  const renderCameraInfo = (camera) => (
+    <div className='absolute top-0 left-0 p-2 bg-gray-900 text-white rounded-br-lg z-10'>
+      {camera.name} - {camera.type}
+    </div>
+  );
+  
+  // 키보드 이벤트 핸들러 추가
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // 선택된 카메라가 있을 때만 키보드 제어 활성화
+      if (selectedCamera) {
+        // 방향키 처리 - 키 반복 이벤트는 무시
+        if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !event.repeat) {
+          const direction = event.key === 'ArrowLeft' ? 'left' : 'right';
+          controlCamera(selectedCamera, direction);
+          debugLog(`키보드 단일 명령: ${direction} (${selectedCamera})`);
+        }
+        
+        // F키 누를 시 전체화면 전환
+        if (event.key.toLowerCase() === 'f' && !event.repeat) {
+          if (fullScreenStream === selectedCamera) {
+            // 이미 전체화면이면 그리드 모드로 복귀
+            setFullScreenStream(null);
+            debugLog(`전체화면 모드 해제: ${selectedCamera}`);
+          } else {
+            // 그리드 모드면 전체화면으로 전환
+            setFullScreenStream(selectedCamera);
+            debugLog(`전체화면 모드 활성화: ${selectedCamera}`);
+          }
+        }
+      }
+    };
+    
+    const handleKeyUp = (event) => {
+      // 선택된 카메라가 있고 방향키를 뗐을 때
+      if (selectedCamera && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+        // 정지 명령 전송
+        stopCamera(selectedCamera);
+        debugLog(`키보드 정지 명령 (${selectedCamera})`);
+      }
+    };
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [selectedCamera, fullScreenStream, controlCamera, stopCamera, debugLog]);
+
+  const connectToCamera = useCallback((camera) => {
     const streamId = `${camera.id}-${camera.type}`;
     
-    // 기존 연결이 있으면 닫기
-    if (wsConnectionsRef.current[streamId]) {
-      wsConnectionsRef.current[streamId].close();
+    // 이미 연결이 존재하고 열려있으면 재연결하지 않음
+    if (wsConnectionsRef.current[streamId] && 
+        wsConnectionsRef.current[streamId].readyState !== WebSocket.CLOSED) {
+      debugLog(`이미 연결이 활성화됨: ${streamId}`);
+      return;
     }
     
     const wsUrl = `${wsProtocol}${wsHost}/ws/camera/${camera.id}/${camera.type}/`;
-    console.log(`Connecting to: ${wsUrl}`);
+    debugLog(`웹소켓 연결 시도: ${wsUrl}`);
     
     const socket = new WebSocket(wsUrl);
     socket.binaryType = 'arraybuffer';  // 바이너리 타입 설정
+    
+    socket.onopen = () => {
+      debugLog(`웹소켓 연결 성공: ${streamId}`);
+      // 연결 확인을 위한 간단한 메시지만 전송
+      socket.send(JSON.stringify({
+        type: 'connection_init'
+      }));
+    };
     
     socket.onmessage = (event) => {
       try {
@@ -48,44 +195,79 @@ function WebSocketVideoTest() {
             [streamId]: url,
           }));
         } else {
-          // 텍스트 메시지 처리 (에러 메시지 등)
+          // 텍스트 메시지 처리
           try {
             const data = JSON.parse(event.data);
-            if (data.type === 'error') {
-              console.error(`Error from server (${streamId}):`, data.error);
-            } else if (data.type === 'camera_info') {
-              console.log(`Camera info (${streamId}):`, data);
+            debugLog(`서버 메시지 수신 (${streamId}): ${JSON.stringify(data)}`);
+
+            // 제어 응답 처리
+            if (data.type === 'camera_control_response') {
+              debugLog(`카메라 제어 응답: 방향=${data.direction}, 성공=${data.success}`);
+              
+              // 제어 실패 시 상태 초기화
+              if (!data.success) {
+                setActiveControls(prev => {
+                  const newControls = {...prev};
+                  delete newControls[streamId];
+                  return newControls;
+                });
+              }
             }
           } catch (parseError) {
-            console.error(`Message parsing error (${streamId}):`, parseError);
+            debugLog(`메시지 파싱 오류: ${parseError.message}`);
           }
         }
       } catch (error) {
-        console.error(`Message processing error (${streamId}):`, error);
+        debugLog(`메시지 처리 오류: ${error.message}`);
       }
     };
     
-    socket.onclose = () => {
-      console.log(`Connection closed (${streamId})`);
-      delete wsConnectionsRef.current[streamId];
+    socket.onclose = (event) => {
+      debugLog(`웹소켓 연결 종료: 코드=${event.code}, 이유=${event.reason || '없음'}`);
+      
+      // 연결이 정상적으로 종료된 경우에만 참조에서 제거
+      if (event.code === 1000 || event.code === 1001) {
+        delete wsConnectionsRef.current[streamId];
+      } else {
+        // 비정상 종료시 재연결 시도 (단, 컴포넌트가 마운트된 상태일 때만)
+        setTimeout(() => {
+          if (connectionsInitializedRef.current) {
+            debugLog(`5초 후 재연결 시도: ${streamId}`);
+            connectToCamera(camera);
+          }
+        }, 5000);
+      }
     };
     
     socket.onerror = (error) => {
-      console.error(`WebSocket error (${streamId}):`, error);
+      debugLog(`웹소켓 오류: ${streamId}, ${error.message || '알 수 없는 오류'}`);
     };
     
     wsConnectionsRef.current[streamId] = socket;
-  };
+  }, [debugLog]);
   
+  // 카메라 연결 설정 - 딱 한 번만 실행되도록 보장
   useEffect(() => {
+    // 이미 초기화되었으면 아무것도 하지 않음
+    if (connectionsInitializedRef.current) {
+      return;
+    }
+    
+    debugLog('카메라 연결 초기화...');
+    connectionsInitializedRef.current = true;
+    
+    // 각 카메라에 한 번씩만 연결
     cameras.forEach(connectToCamera);
     
     // 정리 함수
     return () => {
+      connectionsInitializedRef.current = false;
+      
       // WebSocket 연결 종료
-      Object.values(wsConnectionsRef.current).forEach((socket) => {
+      Object.entries(wsConnectionsRef.current).forEach(([id, socket]) => {
+        debugLog(`정리: WebSocket 연결 종료 (${id})`);
         if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.close();
+          socket.close(1000, "컴포넌트 언마운트");
         }
       });
       
@@ -94,30 +276,96 @@ function WebSocketVideoTest() {
         URL.revokeObjectURL(url);
       });
     };
-  }, []); // cameras가 정적이라면 빈 배열로 두기
+  }, [connectToCamera]); // connectToCamera 함수를 의존성 배열에 추가
+  
+  // 선택된 카메라 표시 - 상태 정보 제거
+  useEffect(() => {
+    // 바탕화면(여백) 클릭 시 선택 해제 처리
+    const handleBackgroundClick = (event) => {
+      // 클릭된 요소가 카메라 컨테이너가 아닌 경우에만 선택 해제
+      const isClickOnCamera = event.target.closest('.camera-container');
+      if (!isClickOnCamera && selectedCamera) {
+        setSelectedCamera(null);
+        debugLog('카메라 선택 해제됨 (배경 클릭)');
+      }
+    };
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('click', handleBackgroundClick);
+    
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('click', handleBackgroundClick);
+    };
+  }, [selectedCamera, debugLog]);
   
   return (
-    <div className='grid grid-cols-2 grid-rows-2 gap-2 mr-8'>
-      {Object.entries(videoStreams).map(([streamId, frameData], index) => {
-        const camera = cameras[index]; // 현재 인덱스에 해당하는 카메라 정보
-        return (
-          <div key={streamId} className='bg-gray-800 border-2 border-dashed border-gray-600 rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300'>
-            {/* 카메라 정보 표시 */}
-            <div className='absolute top-0 left-0 p-2 bg-gray-900 text-white rounded-br-lg'>
-              {camera.name} - {camera.type}
-            </div>
-            <img 
-              src={frameData} 
-              alt={`Stream ${streamId}`} 
-              className='w-full h-full object-cover' // object-cover로 비율 유지
-            />
-          </div>
-        );
-      })}
-      {Object.keys(videoStreams).length === 0 && (
-        <div className='w-full h-full flex items-center justify-center col-span-2 row-span-2'>
-          <p className='text-gray-400'>카메라가 연결되지 않았습니다. 네트워크 상태를 확인하세요.</p>
+    <div className={`mr-8 ${fullScreenStream ? '' : 'grid grid-cols-2 grid-rows-2 gap-2'}`}>
+      {/* 키보드 사용 안내 메시지 제거 */}
+      
+      {fullScreenStream ? (
+        // 전체화면 모드
+        <div className={`w-full h-full bg-gray-800 border-2 ${
+          selectedCamera === fullScreenStream ? 'border-green-500' : 'border-gray-600'
+        } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}>
+          {renderCameraInfo(cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream))}
+          
+          {/* 닫기 버튼 제거 - F키로만 제어 */}
+          
+          <div 
+            className="w-full h-full absolute top-0 left-0 cursor-pointer"
+            onClick={() => selectedCamera !== fullScreenStream ? handleCameraSelect(fullScreenStream) : null}
+          ></div>
+          
+          <img 
+            src={videoStreams[fullScreenStream]} 
+            alt={`Full Screen ${fullScreenStream}`} 
+            className='w-full h-full object-cover' 
+          />
         </div>
+      ) : (
+        // 그리드 레이아웃 모드 - 고정 위치에 카메라 표시
+        <>
+          {/* 고정 위치에 카메라 표시 */}
+          {cameras.map((camera, index) => {
+            const streamId = `${camera.id}-${camera.type}`;
+            const isSelected = selectedCamera === streamId;
+            const hasStream = videoStreams[streamId] !== undefined;
+            
+            return (
+                              <div 
+                key={streamId} 
+                className={`bg-gray-800 border-2 ${
+                  isSelected ? 'border-green-500' : 'border-gray-600'
+                } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}
+              >
+                {renderCameraInfo(camera)}
+                
+                {/* 전체화면 안내 텍스트 제거 */}
+                
+                {hasStream ? (
+                  <>
+                    <div 
+                      className="w-full h-full absolute top-0 left-0 cursor-pointer"
+                      onClick={() => selectedCamera !== streamId ? handleCameraSelect(streamId) : null}
+                    ></div>
+                    
+                    <img 
+                      src={videoStreams[streamId]} 
+                      alt={`Stream ${streamId}`} 
+                      className='w-full h-full object-cover' 
+                    />
+                  </>
+                ) : (
+                  <div className='flex flex-col items-center justify-center text-gray-400'>
+                    <div className='text-3xl mb-2'>⚠️</div>
+                    <p>카메라 연결 중...</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </>
       )}
     </div>
   );
