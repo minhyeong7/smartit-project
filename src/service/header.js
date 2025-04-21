@@ -13,3 +13,5 @@ export const wsHost = '192.168.0.145:8000'; // CCIT 서버 주소
 //export const wsHost = '10.80.13.56:8000'; // JBU-WLAN 서버 주소
 
 // git pull origin main
+
+// 임동균
