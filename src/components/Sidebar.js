@@ -6,14 +6,14 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
             {/* 오버레이 */}
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity z-10"
+                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity z-30"
                     onClick={toggleSidebar} 
                 ></div>
             )}
 
             {/* 사이드바 */}
             <div
-                className={`fixed top-0 left-0 z-10 w-64 h-full bg-white shadow-lg transform transition-transform ${
+                className={`fixed top-0 left-0 z-30 w-64 h-full bg-white shadow-lg transform transition-transform ${
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 }`}
             >

@@ -14,7 +14,7 @@ export default function Layout() {
   return (
     <>
       {/* 헤더 영역 */}
-      <header className="flex items-center justify-between border-b border-gray-300 p-4  w-full bg-white z-10 sticky top-0">
+      <header className="flex items-center justify-between border-b border-gray-300 p-4  w-full  bg-white z-30 sticky top-0">
         <div className="flex items-center">
           {/* 햄버거 메뉴 아이콘 */}
           <button className="p-2 hover:bg-gray-200 rounded-full" onClick={toggleSidebar}>
