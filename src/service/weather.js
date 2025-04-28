@@ -3,8 +3,8 @@ import {server } from "./header";
 // import weatherData from '../mockData/mockWeatherData.json';
 
 // 날씨 불러오기
-export async function getweather() {
-    const res = await fetch(`${server}/weather/?cctv_id=CCTV001`);
+export async function getweather(cctvId) {
+    const res = await fetch(`${server}/weather/${cctvId}/`);
   
     if (!res.ok) {
       throw new Error(res.statusText + "Error");
