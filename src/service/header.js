@@ -6,7 +6,7 @@ const SERVER_IP = '192.168.0.145:8000'; // CCIT 서버 주소
 //const SERVER_IP = '10.80.13.56:8000'; // JBU-WLAN 서버 주소
 
 // API 호출 URL 생성
-export const server = http://${SERVER_IP}/api;
+export const server = `http://${SERVER_IP}/api`;  // 백틱(`) 기호로 수정
 
 // 웹소켓 설정
 export const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
