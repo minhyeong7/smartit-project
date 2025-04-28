@@ -102,7 +102,10 @@ export default function RescueButton() {
     <div className="p-6 bg-gray-100 h-full flex flex-col items-center gap-6">
       {cctvIds.map((id) => (
         <div key={id} className="bg-white border rounded-lg p-4 shadow-md w-80 flex flex-col items-center gap-2">
-          <h3 className="text-lg font-semibold text-gray-700">{id}</h3>
+          <div className="flex items-center w-full justify-center relative">
+            <h3 className="text-lg font-semibold text-gray-700">{id}</h3>
+            <img className="w-8 absolute ml-32" src="https://cdn-icons-png.flaticon.com/128/1163/1163662.png" loading="lazy" alt="태양 " title="태양 " width="64" height="64"></img>
+          </div>
           <button
             onClick={() => submitRescue(id)}
             className="text-lg text-black hover:bg-gray-200 px-4 py-2 rounded-md transition w-full flex items-center gap-4"
