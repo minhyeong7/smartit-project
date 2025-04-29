@@ -3,15 +3,15 @@ import {server } from "./header";
 // import weatherData from '../mockData/mockWeatherData.json';
 
 // 날씨 불러오기
-export async function getweather(cctvId) {
-    const res = await fetch(`${server}/weather/${cctvId}/`);
+// export async function getweather(cctvId) {
+//     const res = await fetch(`${server}/weather/${cctvId}/`);
   
-    if (!res.ok) {
-      throw new Error(res.statusText + "Error");
-    }
+//     if (!res.ok) {
+//       throw new Error(res.statusText + "Error");
+//     }
   
-    return await res.json();
-  }
+//     return await res.json();
+//   }
 
 //날씨 목데이터 불러오기
 // export async function getweather() {
@@ -28,6 +28,17 @@ export async function getweather(cctvId) {
 
    return await res.json();
 
+ }
+
+ 
+ export async function getweather(cctvId) {
+  const res = await fetch(`${server}/weather/icon/${cctvId}/`)
+
+  if(!res.ok){
+    throw new Error(res.statusText + "Error");
+  }
+
+  return await res.json();
  }
 
 //강수량 목데이터 불러오기
