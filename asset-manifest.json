@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/mytube-app/static/css/main.779f51a7.css",
+    "main.js": "/mytube-app/static/js/main.0b64183f.js",
+    "static/js/453.1d6fee85.chunk.js": "/mytube-app/static/js/453.1d6fee85.chunk.js",
+    "index.html": "/mytube-app/index.html",
+    "main.779f51a7.css.map": "/mytube-app/static/css/main.779f51a7.css.map",
+    "main.0b64183f.js.map": "/mytube-app/static/js/main.0b64183f.js.map",
+    "453.1d6fee85.chunk.js.map": "/mytube-app/static/js/453.1d6fee85.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.779f51a7.css",
+    "static/js/main.0b64183f.js"
+  ]
+}
