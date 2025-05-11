@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/smartit-project/static/css/main.779f51a7.css",
-    "main.js": "/smartit-project/static/js/main.bf3a74dd.js",
+    "main.js": "/smartit-project/static/js/main.62725b70.js",
     "static/js/453.1d6fee85.chunk.js": "/smartit-project/static/js/453.1d6fee85.chunk.js",
     "index.html": "/smartit-project/index.html",
     "main.779f51a7.css.map": "/smartit-project/static/css/main.779f51a7.css.map",
-    "main.bf3a74dd.js.map": "/smartit-project/static/js/main.bf3a74dd.js.map",
+    "main.62725b70.js.map": "/smartit-project/static/js/main.62725b70.js.map",
     "453.1d6fee85.chunk.js.map": "/smartit-project/static/js/453.1d6fee85.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.779f51a7.css",
-    "static/js/main.bf3a74dd.js"
+    "static/js/main.62725b70.js"
   ]
 }
