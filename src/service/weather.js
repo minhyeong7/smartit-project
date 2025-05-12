@@ -59,5 +59,3 @@ import {server } from "./header";
   // 목데이터를 사용하므로 fetch 호출은 필요 없고 직접 반환할 수 있습니다.
   //return rainfallData; // 목데이터를 반환
 //}
-
-
