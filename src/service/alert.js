@@ -8,7 +8,7 @@ export async function getalert(cctvId) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ camera_id: cctvId }),
+    body: JSON.stringify({ cctv_id: cctvId }),
   });
 
   if (!res.ok) {

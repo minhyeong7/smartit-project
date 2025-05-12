@@ -3,12 +3,12 @@ import { server } from "./header";
 
 // 발사버튼
 export async function getlaunch(cctvId) {
-    const res= await fetch(`${server}/shot/`,{
+    const res= await fetch(`${server}/shoot/`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
       },
-      body:JSON.stringify({ camera_id: cctvId }),
+      body:JSON.stringify({ cctv_id: cctvId }),
     });
   
     if(!res.ok){
