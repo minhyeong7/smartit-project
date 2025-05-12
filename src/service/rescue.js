@@ -46,4 +46,3 @@ export async function postrescue(rescuedata) {
 
   return await res.json();
 }
-
