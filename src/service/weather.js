@@ -41,17 +41,17 @@ import {server } from "./header";
   return await res.json();
  }
 
- // getweather를 모킹
- export const getweatherMock = async (cctvId) => {
-  return new Promise((resolve) => {
-    // 예시 데이터를 반환
-    const mockWeather = {
-      CCTV001: { weather: "clear" },
-      CCTV002: { weather: "rain" },
-    };
-    resolve(mockWeather[cctvId] || { weather: "clear" });
-  });
-};
+//  // getweather를 모킹
+//  export const getweatherMock = async (cctvId) => {
+//   return new Promise((resolve) => {
+//     // 예시 데이터를 반환
+//     const mockWeather = {
+//       CCTV001: { weather: "clear" },
+//       CCTV002: { weather: "rain" },
+//     };
+//     resolve(mockWeather[cctvId] || { weather: "clear" });
+//   });
+// };
 
 
 //강수량 목데이터 불러오기

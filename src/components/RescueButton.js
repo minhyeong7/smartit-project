@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { postrescue } from "../service/rescue";
 import { getalert } from "../service/alert";
 import { getlaunch } from "../service/launch";
@@ -46,7 +46,7 @@ export default function RescueButton() {
    const submitRader = async (cctv_id) => {
     try {
       const response = await getrader({ cctv_id });
-      setalertResult(response);
+      setraderResult(response);
     } catch (err) {
       console.error("Error getting alert data:", err);
     }
