@@ -3,7 +3,7 @@ import { server } from "./header";
 
 // 발사버튼
 export async function getlaunch(cctvId) {
-    const res= await fetch(`${server}/shoot/${cctvId}/`);
+    const res= await fetch(`${server}/shoot/`);
   
     if(!res.ok){
       throw new Error(res.statusText + " Error");
