@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getweather,getweatherMock } from "../service/weather";
+import { getweather, getweatherMock } from "../service/weather";
 
 export default function WeatherIcon({ cctvId }) {
   const [weatherData, setWeatherData] = useState({}); // CCTV별 날씨 인덱스
@@ -22,20 +22,29 @@ export default function WeatherIcon({ cctvId }) {
     rain: 5,
   };
 
+  const fetchWeather = async () => {
+    try {
+      const res = await getweather(cctvId); // cctvId로 날씨 정보 가져오기
+      const code = res.weather.toLowerCase();
+      setWeatherData((prevData) => ({
+        ...prevData,
+        [cctvId]: weatherToIndex[code] ?? null,
+      }));
+    } catch (err) {
+      console.error(`${cctvId} 날씨 가져오기 실패:`, err);
+    }
+  };
+
   useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const res = await getweather(cctvId); // cctvId로 날씨 정보 가져오기
-        const code = res.weather.toLowerCase();
-        setWeatherData((prevData) => ({
-          ...prevData,
-          [cctvId]: weatherToIndex[code] ?? null,
-        }));
-      } catch (err) {
-        console.error(`${cctvId} 날씨 가져오기 실패:`, err);
-      }
-    };
-    fetchWeather();
+    fetchWeather(); // 초기 로드 시 날씨 정보 가져오기
+
+    // 매 5분(300,000밀리초)마다 날씨 정보 업데이트
+    const interval = setInterval(() => {
+      fetchWeather();
+    }, 60000); // 1분마다 실행
+
+    // 컴포넌트 언마운트 시 interval 정리
+    return () => clearInterval(interval);
   }, [cctvId]);
 
   return (
