@@ -7,6 +7,7 @@ import ReportModal from "./ReportModal";
 import AlertModal from "./AlertModal";
 import LaunchModal from "./LaunchModal";
 import WeatherIcon from "./WeatherIcon";
+import RaderModal from "./RaderModal";
 
 export default function RescueButton() {
   const [reportResult, setreportResult] = useState(null);
@@ -118,6 +119,7 @@ export default function RescueButton() {
       <ReportModal reportResult={reportResult} onClose={() => setreportResult(null)} />
       <AlertModal alertResult={alertResult} onClose={() => setalertResult(null)} />
       <LaunchModal launchResult={launchResult} onClose={() => setlaunchResult(null)} />
+      <RaderModal raderResult={raderResult} onClose={() => setraderResult(null)} />
     </div>
   );
 }
