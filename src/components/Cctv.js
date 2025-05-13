@@ -302,28 +302,44 @@ function WebSocketVideoTest() {
   return (
     <div className={`mr-8 ${fullScreenStream ? '' : 'grid grid-cols-2 grid-rows-2 gap-2'}`}>
       {/* 키보드 사용 안내 메시지 제거 */}
-      
+      {/* 전체화면 */}
       {fullScreenStream ? (
-        // 전체화면 모드
-        <div className={`w-full h-full bg-gray-800 border-2 ${
-          selectedCamera === fullScreenStream ? 'border-green-500' : 'border-gray-600'
-        } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}>
-          {renderCameraInfo(cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream))}
-          
-          {/* 닫기 버튼 제거 - F키로만 제어 */}
-          
-          <div 
-            className="w-full h-full absolute top-0 left-0 cursor-pointer"
-            onClick={() => selectedCamera !== fullScreenStream ? handleCameraSelect(fullScreenStream) : null}
-          ></div>
-          
-          <img 
-            src={videoStreams[fullScreenStream]} 
-            alt={`Full Screen ${fullScreenStream}`} 
-            className='w-full h-full object-cover' 
-          />
-        </div>
-      ) : (
+  <div
+    className={`
+      w-full h-full bg-gray-800 border-2 rounded-lg relative aspect-[16/9]
+      flex items-center justify-center transition-all duration-300 overflow-hidden camera-container
+      ${selectedCamera === fullScreenStream ? 'border-green-500' : 'border-gray-600'}
+    `}
+  >
+    {/* 카메라 정보 표시 */}
+    {renderCameraInfo(
+      cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)
+    )}
+
+    {/* 클릭 시 카메라 선택 (선택된 경우엔 무반응) */}
+    <div
+      className="absolute inset-0 cursor-pointer"
+      onClick={() =>
+        selectedCamera !== fullScreenStream && handleCameraSelect(fullScreenStream)
+      }
+    ></div>
+
+    {/* 실시간 스트림 영상 */}
+    <img
+      src={videoStreams[fullScreenStream]}
+      alt={`Full Screen ${fullScreenStream}`}
+      className="w-full h-full object-cover"
+    />
+
+    {/* 중앙 십자가 오버레이 */}
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="48" y="20" width="4" height="60" fill="red" />
+        <rect x="20" y="48" width="60" height="4" fill="red" />
+      </svg>
+    </div>
+  </div>
+) : (
         // 그리드 레이아웃 모드 - 고정 위치에 카메라 표시
         <>
           {/* 고정 위치에 카메라 표시 */}
@@ -333,7 +349,7 @@ function WebSocketVideoTest() {
             const hasStream = videoStreams[streamId] !== undefined;
             
             return (
-                              <div 
+              <div 
                 key={streamId} 
                 className={`bg-gray-800 border-2 ${
                   isSelected ? 'border-green-500' : 'border-gray-600'
