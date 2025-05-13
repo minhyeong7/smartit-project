@@ -341,20 +341,29 @@ function WebSocketVideoTest() {
               >
                 {renderCameraInfo(camera)}
                 
-                {/* 전체화면 안내 텍스트 제거 */}
+                 {/* 전체화면 안내 텍스트 제거 */}
                 
                 {hasStream ? (
                   <>
-                    <div 
+                    <div
                       className="w-full h-full absolute top-0 left-0 cursor-pointer"
                       onClick={() => selectedCamera !== streamId ? handleCameraSelect(streamId) : null}
                     ></div>
-                    
-                    <img 
-                      src={videoStreams[streamId]} 
-                      alt={`Stream ${streamId}`} 
-                      className='w-full h-full object-cover' 
+
+                    {/* 영상 스트림 */}
+                    <img
+                      src={videoStreams[streamId]}
+                      alt={`Stream ${streamId}`}
+                      className='w-full h-full object-cover'
                     />
+
+                    {/* 중앙 십자가 오버레이 */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="48" y="20" width="4" height="60" fill="red" />
+                        <rect x="20" y="48" width="60" height="4" fill="red" />
+                      </svg>
+                    </div>
                   </>
                 ) : (
                   <div className='flex flex-col items-center justify-center text-gray-400'>
