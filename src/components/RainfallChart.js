@@ -34,7 +34,9 @@ export default function RainfallChart() {
             ? "1mm 미만"
             : item.rainfall_value === 40
             ? "30~50mm"
-            : "50mm 이상",
+            : item.rainfall_value >= 50
+            ? "50mm 이상"
+            : `${item.rainfall_value}mm`,
       }));
 
       console.log("형식화된 데이터:", formattedData);
@@ -46,9 +48,59 @@ export default function RainfallChart() {
     setLoading(false);
   }, [cctvId]);
 
-  useEffect(() => {
-    fetchRainfall();
+  // 다음 실행 시간 계산 함수
+  const getNextScheduledTime = () => {
+    const now = new Date();
+    const currentMinute = now.getMinutes();
+    
+    // 실행할 분: 1, 11, 21, 31, 41, 51
+    const scheduledMinutes = [1, 11, 21, 31, 41, 51];
+    
+    // 현재 시간 이후의 다음 스케줄 시간 찾기
+    for (const minute of scheduledMinutes) {
+      if (minute > currentMinute) {
+        const nextTime = new Date(now);
+        nextTime.setMinutes(minute);
+        nextTime.setSeconds(0);
+        nextTime.setMilliseconds(0);
+        return nextTime;
+      }
+    }
+    
+    // 현재 시간이 51분을 넘었다면 다음 시간의 1분
+    const nextTime = new Date(now);
+    nextTime.setHours(now.getHours() + 1);
+    nextTime.setMinutes(1);
+    nextTime.setSeconds(0);
+    nextTime.setMilliseconds(0);
+    return nextTime;
+  };
+
+  // 스케줄링 함수
+  const scheduleNextFetch = useCallback(() => {
+    const nextTime = getNextScheduledTime();
+    const delay = nextTime.getTime() - new Date().getTime();
+    
+    const timeoutId = setTimeout(() => {
+      fetchRainfall();
+      scheduleNextFetch(); // 다음 스케줄 설정
+    }, delay);
+    
+    return timeoutId;
   }, [fetchRainfall]);
+
+  useEffect(() => {
+    // 초기 로드 시 강수량 데이터 가져오기
+    fetchRainfall();
+    
+    // 첫 번째 스케줄 시작
+    const timeoutId = scheduleNextFetch();
+    
+    // cleanup 함수 - 컴포넌트 언마운트 시 timeout 클리어
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [fetchRainfall, scheduleNextFetch]);
 
   return (
     <div className="w-1/2 h-[25rem] bg-white p-6 shadow-lg rounded-lg relative">
@@ -84,9 +136,17 @@ export default function RainfallChart() {
             <XAxis dataKey="time" />
             <YAxis />
             <Tooltip 
-              formatter={(value, name, props) => {
-                const data = rainfallData[props.active ? props.index : 0];
-                return [data.rainValue, data.rainText];
+              content={({ active, payload, label }) => {
+                if (active && payload && payload[0]) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                      <p className="font-semibold">{`시간: ${label}`}</p>
+                      <p>{`강수량: ${data.rainValue}mm`}</p>
+                    </div>
+                  );
+                }
+                return null;
               }}
             />
             <Line type="monotone" dataKey="rainValue" stroke="#3182CE" strokeWidth={2} />

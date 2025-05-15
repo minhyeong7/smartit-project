@@ -35,16 +35,56 @@ export default function WeatherIcon({ cctvId }) {
     }
   };
 
-  useEffect(() => {
-    fetchWeather(); // 초기 로드 시 날씨 정보 가져오기
+  // 다음 실행 시간 계산 함수
+  const getNextScheduledTime = () => {
+    const now = new Date();
+    const currentMinute = now.getMinutes();
+    
+    // 실행할 분: 1, 11, 21, 31, 41, 51
+    const scheduledMinutes = [1, 11, 21, 31, 41, 51];
+    
+    // 현재 시간 이후의 다음 스케줄 시간 찾기
+    for (const minute of scheduledMinutes) {
+      if (minute > currentMinute) {
+        const nextTime = new Date(now);
+        nextTime.setMinutes(minute);
+        nextTime.setSeconds(0);
+        nextTime.setMilliseconds(0);
+        return nextTime;
+      }
+    }
+    
+    // 현재 시간이 51분을 넘었다면 다음 시간의 1분
+    const nextTime = new Date(now);
+    nextTime.setHours(now.getHours() + 1);
+    nextTime.setMinutes(1);
+    nextTime.setSeconds(0);
+    nextTime.setMilliseconds(0);
+    return nextTime;
+  };
 
-    // 매 5분(300,000밀리초)마다 날씨 정보 업데이트
-    const interval = setInterval(() => {
+  // 스케줄링 함수
+  const scheduleNextFetch = () => {
+    const nextTime = getNextScheduledTime();
+    const delay = nextTime.getTime() - new Date().getTime();
+    
+    setTimeout(() => {
       fetchWeather();
-    }, 60000); // 1분마다 실행
+      scheduleNextFetch(); // 다음 스케줄 설정
+    }, delay);
+  };
 
-    // 컴포넌트 언마운트 시 interval 정리
-    return () => clearInterval(interval);
+  useEffect(() => {
+    // 초기 로드 시 날씨 정보 가져오기
+    fetchWeather();
+    
+    // 첫 번째 스케줄 시작
+    scheduleNextFetch();
+    
+    // cleanup 함수는 더 이상 필요없음 (interval 대신 setTimeout 사용)
+    return () => {
+      // 필요시 cleanup 로직 추가
+    };
   }, [cctvId]);
 
   return (
