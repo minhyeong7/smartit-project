@@ -126,7 +126,7 @@ export default function RainfallChart() {
           <div className="loader"></div>
         </div>
       ) : error ? ( // 오류가 있을 때 메시지 표시
-        <div className="text-red-500 text-center">
+        <div className="text-red-500 text-center mt-32">
           {error}
         </div>
       ) : (
