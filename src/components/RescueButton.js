@@ -7,6 +7,7 @@ import ReportModal from "./ReportModal";
 import AlertModal from "./AlertModal";
 import LaunchModal from "./LaunchModal";
 import WeatherIcon from "./WeatherIcon";
+import FlowStatus from "./FlowStatus"; // FlowStatus 컴포넌트 추가
 import RaderModal from "./RaderModal";
 
 export default function RescueButton() {
@@ -28,7 +29,7 @@ export default function RescueButton() {
 
   const submitAlert = async (cctv_id) => {
     try {
-      const response = await getalert({ cctv_id });
+      const response = await getalert( cctv_id );
       setalertResult(response);
     } catch (err) {
       console.error("Error getting alert data:", err);
@@ -60,7 +61,14 @@ export default function RescueButton() {
           key={id}
           className="bg-white border rounded-lg p-4 shadow-md w-80 flex flex-col items-center gap-3"
         >
-         <WeatherIcon cctvId={id} />
+          {/* WeatherIcon과 FlowStatus를 함께 배치 */}
+          <div className="flex items-center justify-center gap-3 w-full">
+            <WeatherIcon cctvId={id} />
+            <div className="inline-block">
+              <FlowStatus cctvId={id} />
+            </div>
+          </div>
+          
           <button
             onClick={() => submitRescue(id)}
             className="text-lg text-black hover:bg-gray-200 px-4 py-2 rounded-md transition w-full flex items-center gap-4"

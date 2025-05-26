@@ -3,6 +3,7 @@ import {server } from "./header";
 
 
 export async function getalert(cctvId) {
+  console.log('getalert called with:', cctvId, typeof cctvId); // 추가
   const res = await fetch(`${server}/alert/`, {
     method: 'POST',
     headers: {
