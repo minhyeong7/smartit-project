@@ -47,7 +47,7 @@ export default function RescueList() {
         {loading ? (
           <div className="text-center text-gray-500 py-8">🚀 신고 목록을 불러오는 중...</div>
         ) : (
-          <table className="w-full text-sm text-left text-gray-700">
+          <table className="w-full text-xm text-left text-gray-700">
             <thead className="text-xs text-gray-500 border-b border-gray-300">
               <tr>
                 <th className="px-4 py-3">No</th>

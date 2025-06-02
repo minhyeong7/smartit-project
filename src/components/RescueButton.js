@@ -55,11 +55,11 @@ export default function RescueButton() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 h-full flex flex-col items-center gap-6">
+    <div className="  h-full flex flex-col items-center gap-6">
       {cctvIds.map((id) => (
         <div
           key={id}
-          className="bg-white border rounded-lg p-4 shadow-md w-80 flex flex-col items-center gap-3"
+          className="bg-white border rounded-lg p-6 shadow-md w-80 flex flex-col items-center gap-3"
         >
           {/* WeatherIcon과 FlowStatus를 함께 배치 */}
           <div className="flex items-center justify-center gap-3 w-full">
