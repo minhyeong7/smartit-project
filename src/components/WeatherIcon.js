@@ -91,7 +91,7 @@ export default function WeatherIcon({ cctvId }) {
     <div className="flex items-center justify-center w-full relative p-2">
       <h3 className="text-lg font-semibold text-gray-700 absolute">{cctvId}</h3>
       {weatherData[cctvId] !== undefined && weatherData[cctvId] !== null && (
-        <div className="ml-48">{iconLists[weatherData[cctvId]]}</div>
+        <div className="ml-48 w-20">{iconLists[weatherData[cctvId]]}</div>
       )}
     </div>
   );

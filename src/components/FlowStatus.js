@@ -64,7 +64,7 @@ export default function FlowStatus({ cctvId }) {
   const statusStyle = getStatusStyle(flowData.status);
 
   return (
-    <div className="relative">
+    <div className="relative -ml-10">
       <div
         className="flex items-center gap-2 cursor-pointer px-3 py-1 rounded-full transition-all duration-200 hover:shadow-md border"
         style={{ 
@@ -75,14 +75,14 @@ export default function FlowStatus({ cctvId }) {
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
-        <span className="text-sm font-bold">
+        <div className="text-sm font-bold whitespace-nowrap inline-block">
           {statusStyle.text}
-        </span>
+        </div>
       </div>
 
       {/* 툴팁 */}
       {showTooltip && (
-        <div className="absolute z-50 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg -top-20 left-1/2 transform -translate-x-1/2 min-w-max">
+        <div className="absolute z-50 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg -top-20 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
           <div className="space-y-1">
             <div>
               <span className="text-blue-300">수위:</span> {flowData.before_depth}cm → {flowData.after_depth}cm
