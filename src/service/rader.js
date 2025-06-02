@@ -18,3 +18,6 @@ export async function getrader(cctvId) {
   
     return await res.json();
   }
+
+
+  

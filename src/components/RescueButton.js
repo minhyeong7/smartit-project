@@ -38,7 +38,7 @@ export default function RescueButton() {
 
   const submitLaunch = async (cctv_id) => {
     try {
-      const response = await getlaunch({ cctv_id });
+      const response = await getlaunch( cctv_id );
       setlaunchResult(response);
     } catch (err) {
       console.error("Error getting launch data:", err);
@@ -47,7 +47,7 @@ export default function RescueButton() {
 
    const submitRader = async (cctv_id) => {
     try {
-      const response = await getrader({ cctv_id });
+      const response = await getrader( cctv_id );
       setraderResult(response);
     } catch (err) {
       console.error("Error getting alert data:", err);

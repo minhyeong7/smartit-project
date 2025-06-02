@@ -108,9 +108,24 @@ function WebSocketVideoTest() {
     const handleKeyDown = (event) => {
       // 선택된 카메라가 있을 때만 키보드 제어 활성화
       if (selectedCamera) {
-        // 방향키 처리 - 키 반복 이벤트는 무시
-        if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !event.repeat) {
-          const direction = event.key === 'ArrowLeft' ? 'left' : 'right';
+        // WASD 키 처리 - 키 반복 이벤트는 무시
+        const key = event.key.toLowerCase();
+        if ((key === 'w' || key === 'a' || key === 's' || key === 'd') && !event.repeat) {
+          let direction;
+          switch(key) {
+            case 'a':
+              direction = 'left';
+              break;
+            case 'd':
+              direction = 'right';
+              break;
+            case 'w':
+              direction = 'up';
+              break;
+            case 's':
+              direction = 'down';
+              break;
+          }
           controlCamera(selectedCamera, direction);
           debugLog(`키보드 단일 명령: ${direction} (${selectedCamera})`);
         }
@@ -131,8 +146,9 @@ function WebSocketVideoTest() {
     };
     
     const handleKeyUp = (event) => {
-      // 선택된 카메라가 있고 방향키를 뗐을 때
-      if (selectedCamera && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      // 선택된 카메라가 있고 WASD 키를 뗐을 때
+      const key = event.key.toLowerCase();
+      if (selectedCamera && (key === 'w' || key === 'a' || key === 's' || key === 'd')) {
         // 정지 명령 전송
         stopCamera(selectedCamera);
         debugLog(`키보드 정지 명령 (${selectedCamera})`);
@@ -148,8 +164,7 @@ function WebSocketVideoTest() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [selectedCamera, fullScreenStream, controlCamera, stopCamera, debugLog]);
-
+  }, [selectedCamera, fullScreenStream, controlCamera, stopCamera, debugLog]);  
   const connectToCamera = useCallback((camera) => {
     const streamId = `${camera.id}-${camera.type}`;
     
