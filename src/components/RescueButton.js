@@ -1,3 +1,4 @@
+// RescueButton.js 수정
 import React, { useState } from "react";
 import { postrescue } from "../service/rescue";
 import { getalert } from "../service/alert";
@@ -8,16 +9,18 @@ import AlertModal from "./AlertModal";
 import LaunchModal from "./LaunchModal";
 import WeatherIcon from "./WeatherIcon";
 import FlowStatus from "./FlowStatus";
-import RaderModal from "./RaderModal";
 
 export default function RescueButton() {
   const [reportResult, setreportResult] = useState(null);
   const [alertResult, setalertResult] = useState(null);
   const [launchResult, setlaunchResult] = useState(null);
-  const [raderResult, setraderResult] = useState(null);
-  const [radarLoading, setRadarLoading] = useState({}); // 레이더 로딩 상태 추가
+  const [radarLoading, setRadarLoading] = useState({});
   
-  const cctvIds = ["CCTV001", "CCTV002"];
+  // CCTV ID와 표시명 매핑
+  const cctvData = [
+    { id: "CCTV001", name: "백운계곡" },
+    { id: "CCTV002", name: "안덕계곡" }
+  ];
 
   const submitRescue = async (cctv_id) => {
     try {
@@ -30,7 +33,7 @@ export default function RescueButton() {
 
   const submitAlert = async (cctv_id) => {
     try {
-      const response = await getalert( cctv_id );
+      const response = await getalert(cctv_id);
       setalertResult(response);
     } catch (err) {
       console.error("Error getting alert data:", err);
@@ -39,7 +42,7 @@ export default function RescueButton() {
 
   const submitLaunch = async (cctv_id) => {
     try {
-      const response = await getlaunch( cctv_id );
+      const response = await getlaunch(cctv_id);
       setlaunchResult(response);
     } catch (err) {
       console.error("Error getting launch data:", err);
@@ -48,15 +51,9 @@ export default function RescueButton() {
 
   const submitRader = async (cctv_id) => {
     try {
-      // 로딩 상태 시작
       setRadarLoading(prev => ({ ...prev, [cctv_id]: true }));
-      
       const response = await getrader(cctv_id);
       
-      // 모달용 결과 설정
-      setraderResult(response);
-      
-      // CCTV 컴포넌트로 결과 전송 (이벤트 발생)
       window.dispatchEvent(new CustomEvent('radarResult', {
         detail: {
           cctv_id: cctv_id,
@@ -65,18 +62,13 @@ export default function RescueButton() {
       }));
       
       console.log("레이더 결과를 CCTV 컴포넌트로 전송:", response);
-      
     } catch (err) {
       console.error("Error getting radar data:", err);
-      
-      // 오류 시에도 CCTV 컴포넌트로 실패 결과 전송
       const errorResult = {
         success: false,
         error: true,
         message: '측정 실패'
       };
-      
-      setraderResult(errorResult);
       
       window.dispatchEvent(new CustomEvent('radarResult', {
         detail: {
@@ -85,28 +77,28 @@ export default function RescueButton() {
         }
       }));
     } finally {
-      // 로딩 상태 종료
       setRadarLoading(prev => ({ ...prev, [cctv_id]: false }));
     }
   };
 
   return (
     <div className="h-full flex flex-col items-center gap-6">
-      {cctvIds.map((id) => (
+      {cctvData.map((cctv) => (
         <div
-          key={id}
+          key={cctv.id}
           className="bg-white border rounded-lg p-6 shadow-md w-80 flex flex-col items-center gap-3"
         >
           {/* WeatherIcon과 FlowStatus를 함께 배치 */}
           <div className="flex items-center justify-center gap-3 w-full">
-            <WeatherIcon cctvId={id} />
+            {/* cctvId 대신 name을 전달하고, 실제 API 호출에는 id 사용 */}
+            <WeatherIcon cctvId={cctv.id} displayName={cctv.name} />
             <div className="inline-block">
-              <FlowStatus cctvId={id} />
+              <FlowStatus cctvId={cctv.id} />
             </div>
           </div>
           
           <button
-            onClick={() => submitRescue(id)}
+            onClick={() => submitRescue(cctv.id)}
             className="text-lg text-black hover:bg-gray-200 px-4 py-2 rounded-md transition w-full flex items-center gap-4"
           >
             <img
@@ -119,7 +111,7 @@ export default function RescueButton() {
           </button>
 
           <button
-            onClick={() => submitAlert(id)}
+            onClick={() => submitAlert(cctv.id)}
             className="text-lg text-black hover:bg-gray-200 px-4 py-2 rounded-md transition w-full flex items-center gap-4"
           >
             <img
@@ -132,7 +124,7 @@ export default function RescueButton() {
           </button>
 
           <button
-            onClick={() => submitLaunch(id)}
+            onClick={() => submitLaunch(cctv.id)}
             className="text-lg text-black hover:bg-gray-200 px-4 py-2 rounded-md transition w-full flex items-center gap-4"
           >
             <img
@@ -145,10 +137,10 @@ export default function RescueButton() {
           </button>
 
           <button
-            onClick={() => submitRader(id)}
-            disabled={radarLoading[id]}
+            onClick={() => submitRader(cctv.id)}
+            disabled={radarLoading[cctv.id]}
             className={`text-lg px-4 py-2 rounded-md transition w-full flex items-center gap-4 ${
-              radarLoading[id] 
+              radarLoading[cctv.id] 
                 ? 'text-gray-500 bg-gray-100 cursor-not-allowed' 
                 : 'text-black hover:bg-gray-200'
             }`}
@@ -158,9 +150,9 @@ export default function RescueButton() {
               alt="Radar"
               width="26"
               height="26"
-              className={radarLoading[id] ? 'opacity-50' : ''}
+              className={radarLoading[cctv.id] ? 'opacity-50' : ''}
             />
-            {radarLoading[id] ? '거리 측정 중...' : '레이더 발사하기'}
+            {radarLoading[cctv.id] ? '거리 측정 중...' : '레이더 발사하기'}
           </button>
         </div>
       ))}
@@ -169,7 +161,6 @@ export default function RescueButton() {
       <ReportModal reportResult={reportResult} onClose={() => setreportResult(null)} />
       <AlertModal alertResult={alertResult} onClose={() => setalertResult(null)} />
       <LaunchModal launchResult={launchResult} onClose={() => setlaunchResult(null)} />
-      <RaderModal raderResult={raderResult} onClose={() => setraderResult(null)} />
     </div>
   );
-} 
+}

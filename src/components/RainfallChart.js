@@ -1,3 +1,4 @@
+// RainfallChart.js 수정
 import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -14,12 +15,24 @@ import { getrain } from "../service/weather";
 export default function RainfallChart() {
   const [rainfallData, setRainfallData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // 오류 상태 추가
+  const [error, setError] = useState(null);
   const [cctvId, setCctvId] = useState("CCTV001"); // 기본 CCTV ID
+
+  // CCTV ID와 표시명 매핑
+  const cctvOptions = [
+    { id: "CCTV001", name: "백운계곡" },
+    { id: "CCTV002", name: "안덕계곡" }
+  ];
+
+  // 현재 선택된 CCTV의 이름 가져오기
+  const getCurrentCctvName = () => {
+    const found = cctvOptions.find(option => option.id === cctvId);
+    return found ? found.name : cctvId;
+  };
 
   const fetchRainfall = useCallback(async () => {
     setLoading(true);
-    setError(null); // 오류 초기화
+    setError(null);
     try {
       const response = await getrain(cctvId);
       console.log("불러온 강수량 데이터:", response);
@@ -43,20 +56,16 @@ export default function RainfallChart() {
       setRainfallData(formattedData);
     } catch (error) {
       console.error("강수량 데이터를 불러오는 중 오류 발생:", error);
-      setError("서버에서 데이터를 불러오는 데 실패했습니다."); // 오류 메시지 설정
+      setError("서버에서 데이터를 불러오는 데 실패했습니다.");
     }
     setLoading(false);
   }, [cctvId]);
 
-  // 다음 실행 시간 계산 함수
   const getNextScheduledTime = () => {
     const now = new Date();
     const currentMinute = now.getMinutes();
-    
-    // 실행할 분: 1, 11, 21, 31, 41, 51
     const scheduledMinutes = [1, 11, 21, 31, 41, 51];
     
-    // 현재 시간 이후의 다음 스케줄 시간 찾기
     for (const minute of scheduledMinutes) {
       if (minute > currentMinute) {
         const nextTime = new Date(now);
@@ -67,7 +76,6 @@ export default function RainfallChart() {
       }
     }
     
-    // 현재 시간이 51분을 넘었다면 다음 시간의 1분
     const nextTime = new Date(now);
     nextTime.setHours(now.getHours() + 1);
     nextTime.setMinutes(1);
@@ -76,27 +84,22 @@ export default function RainfallChart() {
     return nextTime;
   };
 
-  // 스케줄링 함수
   const scheduleNextFetch = useCallback(() => {
     const nextTime = getNextScheduledTime();
     const delay = nextTime.getTime() - new Date().getTime();
     
     const timeoutId = setTimeout(() => {
       fetchRainfall();
-      scheduleNextFetch(); // 다음 스케줄 설정
+      scheduleNextFetch();
     }, delay);
     
     return timeoutId;
   }, [fetchRainfall]);
 
   useEffect(() => {
-    // 초기 로드 시 강수량 데이터 가져오기
     fetchRainfall();
-    
-    // 첫 번째 스케줄 시작
     const timeoutId = scheduleNextFetch();
     
-    // cleanup 함수 - 컴포넌트 언마운트 시 timeout 클리어
     return () => {
       clearTimeout(timeoutId);
     };
@@ -109,15 +112,18 @@ export default function RainfallChart() {
 
       {/* CCTV 선택 리스트 박스 */}
       <div className="mb-4 text-center">
-        <label htmlFor="cctv-select" className="mr-2">CCTV 선택:</label>
+        <label htmlFor="cctv-select" className="mr-2">지역 선택:</label>
         <select
           id="cctv-select"
           value={cctvId}
           onChange={(e) => setCctvId(e.target.value)}
           className="border border-gray-300 rounded p-1"
         >
-          <option value="CCTV001">CCTV001</option>
-          <option value="CCTV002">CCTV002</option>
+          {cctvOptions.map(option => (
+            <option key={option.id} value={option.id}>
+              {option.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -125,7 +131,7 @@ export default function RainfallChart() {
         <div className="flex justify-center items-center h-full">
           <div className="loader"></div>
         </div>
-      ) : error ? ( // 오류가 있을 때 메시지 표시
+      ) : error ? (
         <div className="text-red-500 text-center mt-32">
           {error}
         </div>
@@ -143,6 +149,7 @@ export default function RainfallChart() {
                     <div className="bg-white p-2 border border-gray-300 rounded shadow">
                       <p className="font-semibold">{`시간: ${label}`}</p>
                       <p>{`강수량: ${data.rainValue}mm`}</p>
+                      <p className="text-sm text-gray-600">{`지역: ${getCurrentCctvName()}`}</p>
                     </div>
                   );
                 }
@@ -158,16 +165,16 @@ export default function RainfallChart() {
       <style>
         {`
           .loader {
-            border: 8px solid #e0e0e0; /* Light gray */
-            border-top: 8px solid #999; /* Darker gray */
+            border: 8px solid #e0e0e0;
+            border-top: 8px solid #999;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            position: absolute; /* 절대 위치 지정 */
-            top: 50%; /* 위쪽으로 위치 조정 */
-            left: 50%; /* 중앙 정렬 */
-            transform: translate(-50%, -50%); /* 중앙 정렬 */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
           }
 
           @keyframes spin {

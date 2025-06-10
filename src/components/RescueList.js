@@ -1,3 +1,4 @@
+// RescueList.js 수정
 import React, { useState, useEffect } from 'react';
 import { getrescue, getallrescue } from '../service/rescue';
 
@@ -5,6 +6,19 @@ export default function RescueList() {
   const [data, setData] = useState([]);
   const [selectedCCTV, setSelectedCCTV] = useState("전체");
   const [loading, setLoading] = useState(false);
+
+  // CCTV ID와 표시명 매핑
+  const cctvOptions = [
+    { id: "전체", name: "전체" },
+    { id: "CCTV001", name: "백운계곡" },
+    { id: "CCTV002", name: "안덕계곡" }
+  ];
+
+  // ID를 이름으로 변환하는 함수
+  const getCctvName = (cctvId) => {
+    const found = cctvOptions.find(option => option.id === cctvId);
+    return found ? found.name : cctvId;
+  };
 
   useEffect(() => {
     const fetchRescue = async () => {
@@ -36,9 +50,11 @@ export default function RescueList() {
           onChange={(e) => setSelectedCCTV(e.target.value)}
           className="border border-gray-300 p-2 rounded-md"
         >
-          <option value="전체">전체</option>
-          <option value="CCTV001">CCTV001</option>
-          <option value="CCTV002">CCTV002</option>
+          {cctvOptions.map(option => (
+            <option key={option.id} value={option.id}>
+              {option.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -63,7 +79,9 @@ export default function RescueList() {
                 data.map((item, index) => (
                   <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="px-4 py-3">{index + 1}</td>
-                    <td className="px-4 py-3 text-blue-600">{item.location || '위치 알 수 없음'}</td>
+                    <td className="px-4 py-3 text-blue-600">
+                      {item.location ? getCctvName(item.location) : '위치 알 수 없음'}
+                    </td>
                     <td className="px-4 py-3">{item.date || '날짜 없음'}</td>
                     <td className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-w-[80px] w-[120px]">
                       {item.receiver || '수신자 알 수 없음'}

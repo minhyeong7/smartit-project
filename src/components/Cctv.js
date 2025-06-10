@@ -15,10 +15,10 @@ function WebSocketVideoTest() {
   const connectionsInitializedRef = useRef(false);
   
   const cameras = [
-    { id: 'CCTV001', name: '고양시청', type: 'original' },
-    { id: 'CCTV001', name: '고양시청', type: 'ai' },
-    { id: 'CCTV002', name: '제주시청', type: 'original' },
-    { id: 'CCTV002', name: '제주시청', type: 'ai' },
+    { id: 'CCTV001', name: '백운계곡', type: 'original' },
+    { id: 'CCTV001', name: '백운계곡', type: 'ai' },
+    { id: 'CCTV002', name: '안덕계곡', type: 'original' },
+    { id: 'CCTV002', name: '안덕계곡', type: 'ai' },
   ];
 
   // 디버그 로그 함수
