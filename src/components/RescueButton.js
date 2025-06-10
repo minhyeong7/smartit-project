@@ -7,7 +7,7 @@ import ReportModal from "./ReportModal";
 import AlertModal from "./AlertModal";
 import LaunchModal from "./LaunchModal";
 import WeatherIcon from "./WeatherIcon";
-import FlowStatus from "./FlowStatus"; // FlowStatus 컴포넌트 추가
+import FlowStatus from "./FlowStatus";
 import RaderModal from "./RaderModal";
 
 
@@ -16,6 +16,7 @@ export default function RescueButton() {
   const [alertResult, setalertResult] = useState(null);
   const [launchResult, setlaunchResult] = useState(null);
   const [raderResult, setraderResult] = useState(null);
+  const [radarLoading, setRadarLoading] = useState({}); // 레이더 로딩 상태 추가
   
   const cctvIds = ["CCTV001", "CCTV002"];
 
@@ -46,17 +47,52 @@ export default function RescueButton() {
     }
   };
 
-   const submitRader = async (cctv_id) => {
+  const submitRader = async (cctv_id) => {
     try {
-      const response = await getrader( cctv_id );
+      // 로딩 상태 시작
+      setRadarLoading(prev => ({ ...prev, [cctv_id]: true }));
+      
+      const response = await getrader(cctv_id);
+      
+      // 모달용 결과 설정
       setraderResult(response);
+      
+      // CCTV 컴포넌트로 결과 전송 (이벤트 발생)
+      window.dispatchEvent(new CustomEvent('radarResult', {
+        detail: {
+          cctv_id: cctv_id,
+          result: response
+        }
+      }));
+      
+      console.log("레이더 결과를 CCTV 컴포넌트로 전송:", response);
+      
     } catch (err) {
-      console.error("Error getting alert data:", err);
+      console.error("Error getting radar data:", err);
+      
+      // 오류 시에도 CCTV 컴포넌트로 실패 결과 전송
+      const errorResult = {
+        success: false,
+        error: true,
+        message: '측정 실패'
+      };
+      
+      setraderResult(errorResult);
+      
+      window.dispatchEvent(new CustomEvent('radarResult', {
+        detail: {
+          cctv_id: cctv_id,
+          result: errorResult
+        }
+      }));
+    } finally {
+      // 로딩 상태 종료
+      setRadarLoading(prev => ({ ...prev, [cctv_id]: false }));
     }
   };
 
   return (
-    <div className="  h-full flex flex-col items-center gap-6">
+    <div className="h-full flex flex-col items-center gap-6">
       {cctvIds.map((id) => (
         <div
           key={id}
@@ -109,17 +145,23 @@ export default function RescueButton() {
             구조 발사하기
           </button>
 
-           <button
+          <button
             onClick={() => submitRader(id)}
-            className="text-lg text-black hover:bg-gray-200 px-4 py-2 rounded-md transition w-full flex items-center gap-4"
+            disabled={radarLoading[id]}
+            className={`text-lg px-4 py-2 rounded-md transition w-full flex items-center gap-4 ${
+              radarLoading[id] 
+                ? 'text-gray-500 bg-gray-100 cursor-not-allowed' 
+                : 'text-black hover:bg-gray-200'
+            }`}
           >
             <img
               src="https://cdn-icons-png.flaticon.com/128/6989/6989458.png"
-              alt="Launch"
+              alt="Radar"
               width="26"
               height="26"
+              className={radarLoading[id] ? 'opacity-50' : ''}
             />
-            레이더 발사하기
+            {radarLoading[id] ? '거리 측정 중...' : '레이더 발사하기'}
           </button>
         </div>
       ))}
@@ -132,4 +174,4 @@ export default function RescueButton() {
       
     </div>
   );
-}
+} 
