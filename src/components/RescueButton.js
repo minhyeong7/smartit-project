@@ -8,14 +8,14 @@ import AlertModal from "./AlertModal";
 import LaunchModal from "./LaunchModal";
 import WeatherIcon from "./WeatherIcon";
 import FlowStatus from "./FlowStatus";
-import RaderModal from "./RaderModal";
+
 
 
 export default function RescueButton() {
   const [reportResult, setreportResult] = useState(null);
   const [alertResult, setalertResult] = useState(null);
   const [launchResult, setlaunchResult] = useState(null);
-  const [raderResult, setraderResult] = useState(null);
+  
   const [radarLoading, setRadarLoading] = useState({}); // 레이더 로딩 상태 추가
   
   const cctvIds = ["CCTV001", "CCTV002"];
@@ -54,8 +54,7 @@ export default function RescueButton() {
       
       const response = await getrader(cctv_id);
       
-      // 모달용 결과 설정
-      setraderResult(response);
+      
       
       // CCTV 컴포넌트로 결과 전송 (이벤트 발생)
       window.dispatchEvent(new CustomEvent('radarResult', {
@@ -77,7 +76,7 @@ export default function RescueButton() {
         message: '측정 실패'
       };
       
-      setraderResult(errorResult);
+     
       
       window.dispatchEvent(new CustomEvent('radarResult', {
         detail: {
@@ -165,13 +164,13 @@ export default function RescueButton() {
           </button>
         </div>
       ))}
-      {/* asd */}
+      
 
       {/* 모달 */}
       <ReportModal reportResult={reportResult} onClose={() => setreportResult(null)} />
       <AlertModal alertResult={alertResult} onClose={() => setalertResult(null)} />
       <LaunchModal launchResult={launchResult} onClose={() => setlaunchResult(null)} />
-      <RaderModal raderResult={raderResult} onClose={() => setraderResult(null)} />
+     
       
     </div>
   );
