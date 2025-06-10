@@ -53,7 +53,7 @@ export default function RescueList() {
                 <th className="px-4 py-3">No</th>
                 <th className="px-4 py-3">위치</th>
                 <th className="px-4 py-3">날짜</th>
-                <th className="px-4 py-3">수신자</th>
+                <th className="px-8 py-3">수신자</th>
                 <th className="px-4 py-3">메시지</th>
                 <th className="px-4 py-3">상태</th>
               </tr>
@@ -65,14 +65,16 @@ export default function RescueList() {
                     <td className="px-4 py-3">{index + 1}</td>
                     <td className="px-4 py-3 text-blue-600">{item.location || '위치 알 수 없음'}</td>
                     <td className="px-4 py-3">{item.date || '날짜 없음'}</td>
-                    <td className="px-4 py-3">{item.receiver || '수신자 알 수 없음'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-w-[80px] w-[120px]">
+                      {item.receiver || '수신자 알 수 없음'}
+                    </td>
                     <td className="px-4 py-3">{item.message || '메시지 알 수 없음'}</td>
-                     <td className="px-4 py-3">{item.status || '상태 알 수 없음'}</td>
+                    <td className="px-4 py-3">{item.status || '상태 알 수 없음'}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-4 py-5 text-center text-gray-400">
+                  <td colSpan="6" className="px-4 py-5 text-center text-gray-400">
                     신고 내역을 알 수 없습니다
                   </td>
                 </tr>
