@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { wsProtocol, wsHost } from '../service/header';
-import { getrader } from '../service/rader';
 
 function WebSocketVideoTest() {
   const [videoStreams, setVideoStreams] = useState({});
@@ -438,6 +437,7 @@ function WebSocketVideoTest() {
                 } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}
               >
                 {renderCameraInfo(camera)}
+                
                 
                 {/* 레이더 거리 표시 */}
                 {renderRadarDistance(camera.id)}
