@@ -10,6 +10,7 @@ import WeatherIcon from "./WeatherIcon";
 import FlowStatus from "./FlowStatus"; // FlowStatus 컴포넌트 추가
 import RaderModal from "./RaderModal";
 
+
 export default function RescueButton() {
   const [reportResult, setreportResult] = useState(null);
   const [alertResult, setalertResult] = useState(null);
@@ -128,6 +129,7 @@ export default function RescueButton() {
       <AlertModal alertResult={alertResult} onClose={() => setalertResult(null)} />
       <LaunchModal launchResult={launchResult} onClose={() => setlaunchResult(null)} />
       <RaderModal raderResult={raderResult} onClose={() => setraderResult(null)} />
+      
     </div>
   );
 }
