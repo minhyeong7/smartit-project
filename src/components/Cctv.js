@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { wsProtocol, wsHost } from '../service/header';
+import { getrader } from '../service/rader';
 
 function WebSocketVideoTest() {
   const [videoStreams, setVideoStreams] = useState({});
-  const [fullScreenStream, setFullScreenStream] = useState(null); // 전체화면용 상태
+  const [fullScreenStream, setFullScreenStream] = useState(null);
   const [focusedSlot, setFocusedSlot] = useState(null);
   const [activeControls, setActiveControls] = useState({});
-  const [selectedCamera, setSelectedCamera] = useState(null); // 선택된 카메라 상태 추가
+  const [selectedCamera, setSelectedCamera] = useState(null);
+  const [radarResults, setRadarResults] = useState({}); // 레이더 결과 상태 추가
   
   const wsConnectionsRef = useRef({});
   const blobUrlsRef = useRef({});
@@ -24,6 +26,51 @@ function WebSocketVideoTest() {
     console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
   }, []);
 
+  // 외부 레이더 결과 이벤트 리스너 및 배경 클릭 처리
+  useEffect(() => {
+    // RescueButton에서 발생한 레이더 결과 처리
+    const handleExternalRadarResult = (event) => {
+      const { cctv_id, result } = event.detail;
+      debugLog(`외부 레이더 결과 수신: ${cctv_id}`);
+      
+      setRadarResults(prev => ({
+        ...prev,
+        [cctv_id]: {
+          ...result,
+          timestamp: new Date().toISOString()
+        }
+      }));
+      
+      // 5초 후 결과 자동 숨김
+      setTimeout(() => {
+        setRadarResults(prev => {
+          const newResults = { ...prev };
+          delete newResults[cctv_id];
+          return newResults;
+        });
+      }, 5000);
+    };
+
+    // 바탕화면(여백) 클릭 시 선택 해제 처리
+    const handleBackgroundClick = (event) => {
+      // 클릭된 요소가 카메라 컨테이너가 아닌 경우에만 선택 해제
+      const isClickOnCamera = event.target.closest('.camera-container');
+      if (!isClickOnCamera && selectedCamera) {
+        setSelectedCamera(null);
+        debugLog('카메라 선택 해제됨 (배경 클릭)');
+      }
+    };
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('radarResult', handleExternalRadarResult);
+    window.addEventListener('click', handleBackgroundClick);
+    
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('radarResult', handleExternalRadarResult);
+      window.removeEventListener('click', handleBackgroundClick);
+    };
+  }, [selectedCamera, debugLog]);
   // 카메라 제어 함수 - 방향 명령 한 번만 보내기
   const controlCamera = useCallback((streamId, direction) => {
     const socket = wsConnectionsRef.current[streamId];
@@ -102,8 +149,31 @@ function WebSocketVideoTest() {
       {camera.name} - {camera.type}
     </div>
   );
+
+  // 레이더 결과 표시 컴포넌트 (카메라 정보 아래 간단 표시)
+  const renderRadarDistance = (cameraId) => {
+    const result = radarResults[cameraId];
+    
+    if (result) {
+      // 거리 값 계산
+      let distance = 0;
+      if (result.success && result.calculated_distance) {
+        distance = Math.round(result.calculated_distance); // cm 단위로 반올림
+      }
+      
+      return (
+        <div className={`absolute top-14 left-0 p-2 rounded-br-lg z-10 ${
+          result.success ? 'bg-green-600' : 'bg-red-600'
+        } text-white text-sm font-semibold`}>
+          거리: {distance} cm
+        </div>
+      );
+    }
+    
+    return null;
+  };
   
-  // 키보드 이벤트 핸들러 추가
+  // 키보드 이벤트 핸들러 (레이더 제거)
   useEffect(() => {
     const handleKeyDown = (event) => {
       // 선택된 카메라가 있을 때만 키보드 제어 활성화
@@ -120,10 +190,10 @@ function WebSocketVideoTest() {
               direction = 'right';
               break;
             case 'w':
-              direction = 'up';
+              direction = 'down';
               break;
             case 's':
-              direction = 'down';
+              direction = 'up';
               break;
           }
           controlCamera(selectedCamera, direction);
@@ -165,6 +235,7 @@ function WebSocketVideoTest() {
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, [selectedCamera, fullScreenStream, controlCamera, stopCamera, debugLog]);  
+
   const connectToCamera = useCallback((camera) => {
     const streamId = `${camera.id}-${camera.type}`;
     
@@ -291,73 +362,69 @@ function WebSocketVideoTest() {
         URL.revokeObjectURL(url);
       });
     };
-  }, [connectToCamera]); // connectToCamera 함수를 의존성 배열에 추가
-  
-  // 선택된 카메라 표시 - 상태 정보 제거
-  useEffect(() => {
-    // 바탕화면(여백) 클릭 시 선택 해제 처리
-    const handleBackgroundClick = (event) => {
-      // 클릭된 요소가 카메라 컨테이너가 아닌 경우에만 선택 해제
-      const isClickOnCamera = event.target.closest('.camera-container');
-      if (!isClickOnCamera && selectedCamera) {
-        setSelectedCamera(null);
-        debugLog('카메라 선택 해제됨 (배경 클릭)');
-      }
-    };
-    
-    // 이벤트 리스너 등록
-    window.addEventListener('click', handleBackgroundClick);
-    
-    // 클린업 함수
-    return () => {
-      window.removeEventListener('click', handleBackgroundClick);
-    };
-  }, [selectedCamera, debugLog]);
+  }, [connectToCamera]);
   
   return (
     <div className={`mr-8 ${fullScreenStream ? '' : 'grid grid-cols-2 grid-rows-2 gap-2'}`}>
-      {/* 키보드 사용 안내 메시지 제거 */}
+      {/* 키보드 단축키 안내 (레이더 제거) */}
+      {selectedCamera && (
+        <div className="fixed top-4 right-4 bg-black bg-opacity-75 text-white p-3 rounded-lg text-sm z-30">
+          <p className="font-semibold mb-1">키보드 단축키:</p>
+          <p>WASD: 카메라 조작</p>
+          <p>F: 전체화면 토글</p>
+        </div>
+      )}
+      
       {/* 전체화면 */}
       {fullScreenStream ? (
-  <div
-    className={`
-      w-full h-full bg-gray-800 border-2 rounded-lg relative aspect-[16/9]
-      flex items-center justify-center transition-all duration-300 overflow-hidden camera-container
-      ${selectedCamera === fullScreenStream ? 'border-green-500' : 'border-gray-600'}
-    `}
-  >
-    {/* 카메라 정보 표시 */}
-    {renderCameraInfo(
-      cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)
-    )}
+        <div
+          className={`
+            w-full h-full bg-gray-800 border-2 rounded-lg relative aspect-[16/9]
+            flex items-center justify-center transition-all duration-300 overflow-hidden camera-container
+            ${selectedCamera === fullScreenStream ? 'border-green-500' : 'border-gray-600'}
+          `}
+        >
+          {/* 카메라 정보 표시 */}
+          {renderCameraInfo(
+            cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)
+          )}
 
-    {/* 클릭 시 카메라 선택 (선택된 경우엔 무반응) */}
-    <div
-      className="absolute inset-0 cursor-pointer"
-      onClick={() =>
-        selectedCamera !== fullScreenStream && handleCameraSelect(fullScreenStream)
-      }
-    ></div>
+          {/* 레이더 거리 표시 */}
+          {renderRadarDistance(
+            cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)?.id
+          )}
 
-    {/* 실시간 스트림 영상 */}
-    <img
-      src={videoStreams[fullScreenStream]}
-      alt={`Full Screen ${fullScreenStream}`}
-      className="w-full h-full object-cover"
-    />
+          {/* 클릭 시 카메라 선택 (선택된 경우엔 무반응) */}
+          <div
+            className="absolute inset-0 cursor-pointer"
+            onClick={() =>
+              selectedCamera !== fullScreenStream && handleCameraSelect(fullScreenStream)
+            }
+          ></div>
 
-    {/* 중앙 십자가 오버레이 */}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-      <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <rect x="48" y="20" width="4" height="60" fill="red" />
-        <rect x="20" y="48" width="60" height="4" fill="red" />
-      </svg>
-    </div>
-  </div>
-) : (
+          {/* 실시간 스트림 영상 */}
+          <img
+            src={videoStreams[fullScreenStream]}
+            alt={`Full Screen ${fullScreenStream}`}
+            className="w-full h-full object-cover"
+          />
+
+          {/* 중앙 십자가 오버레이 */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+            <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <rect x="48" y="20" width="4" height="60" fill="red" />
+              <rect x="20" y="48" width="60" height="4" fill="red" />
+            </svg>
+          </div>
+
+          {/* 레이더 결과 표시 */}
+          {renderRadarDistance(
+            cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)?.id
+          )}
+        </div>
+      ) : (
         // 그리드 레이아웃 모드 - 고정 위치에 카메라 표시
         <>
-          {/* 고정 위치에 카메라 표시 */}
           {cameras.map((camera, index) => {
             const streamId = `${camera.id}-${camera.type}`;
             const isSelected = selectedCamera === streamId;
@@ -372,7 +439,8 @@ function WebSocketVideoTest() {
               >
                 {renderCameraInfo(camera)}
                 
-                {/* 전체화면 안내 텍스트 제거 */}
+                {/* 레이더 거리 표시 */}
+                {renderRadarDistance(camera.id)}
                 
                 {hasStream ? (
                   <>
@@ -393,6 +461,9 @@ function WebSocketVideoTest() {
                     <p>카메라 연결 중...</p>
                   </div>
                 )}
+
+                {/* 레이더 거리 표시 */}
+                {renderRadarDistance(camera.id)}
               </div>
             );
           })}
