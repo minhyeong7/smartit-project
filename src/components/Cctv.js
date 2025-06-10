@@ -437,7 +437,7 @@ function WebSocketVideoTest() {
                 } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}
               >
                 {renderCameraInfo(camera)}
-                <RaderDistance />
+                
                 
                 {/* 레이더 거리 표시 */}
                 {renderRadarDistance(camera.id)}
