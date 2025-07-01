@@ -1,5 +1,5 @@
 import {server } from "./header";
-// import rainfallData from '../mockData/mockRainfallData.json';
+import rainfallData from '../mockData/mockRainfallData.json';
 // import weatherData from '../mockData/mockWeatherData.json';
 
 // 날씨 불러오기
@@ -18,17 +18,17 @@ import {server } from "./header";
 //   return weatherData;
 // }
 
-// 해당 CCTV 위치 강수량 불러오기
- export async function getrain(cctvId) {
-   const res = await fetch(`${server}/rainfall/${cctvId}/`);
+// // 해당 CCTV 위치 강수량 불러오기
+//  export async function getrain(cctvId) {
+//    const res = await fetch(`${server}/rainfall/${cctvId}/`);
 
-   if(!res.ok){
-     throw new Error(res.statusText + "Error");
-   }
+//    if(!res.ok){
+//      throw new Error(res.statusText + "Error");
+//    }
 
-   return await res.json();
+//    return await res.json();
 
- }
+//  }
 
  
  export async function getweather(cctvId) {
@@ -55,10 +55,10 @@ import {server } from "./header";
 
 
 //강수량 목데이터 불러오기
-// export async function getrain() {
+export async function getrain() {
   // 목데이터를 사용하므로 fetch 호출은 필요 없고 직접 반환할 수 있습니다.
-  //return rainfallData; // 목데이터를 반환
-//}
+  return rainfallData; // 목데이터를 반환
+}
 
 // 수위/유속 예측 데이터 가져오기  
 export async function getflowstatus(cctvId) {
