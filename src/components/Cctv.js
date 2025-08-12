@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { wsProtocol, wsHost } from '../service/header';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { wsProtocol, wsHost } from "../service/header";
 
 function WebSocketVideoTest() {
   const [videoStreams, setVideoStreams] = useState({});
@@ -9,16 +9,16 @@ function WebSocketVideoTest() {
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [radarResults, setRadarResults] = useState({}); // 레이더 결과 상태 추가
   const [warningStatus, setWarningStatus] = useState({}); // 경고 상태 추가
-  
+
   const wsConnectionsRef = useRef({});
   const blobUrlsRef = useRef({});
   const connectionsInitializedRef = useRef(false);
-  
+
   const cameras = [
-    { id: 'CCTV001', name: '백운계곡', type: 'original' },
-    { id: 'CCTV001', name: '백운계곡', type: 'ai' },
-    { id: 'CCTV002', name: '안덕계곡', type: 'original' },
-    { id: 'CCTV002', name: '안덕계곡', type: 'ai' },
+    { id: "CCTV001", name: "백운계곡", type: "original" },
+    { id: "CCTV001", name: "백운계곡", type: "ai" },
+    { id: "CCTV002", name: "안덕계곡", type: "original" },
+    { id: "CCTV002", name: "안덕계곡", type: "ai" },
   ];
 
   // 디버그 로그 함수
@@ -32,18 +32,18 @@ function WebSocketVideoTest() {
     const handleExternalRadarResult = (event) => {
       const { cctv_id, result } = event.detail;
       debugLog(`외부 레이더 결과 수신: ${cctv_id}`);
-      
-      setRadarResults(prev => ({
+
+      setRadarResults((prev) => ({
         ...prev,
         [cctv_id]: {
           ...result,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       }));
-      
+
       // 5초 후 결과 자동 숨김
       setTimeout(() => {
-        setRadarResults(prev => {
+        setRadarResults((prev) => {
           const newResults = { ...prev };
           delete newResults[cctv_id];
           return newResults;
@@ -54,90 +54,93 @@ function WebSocketVideoTest() {
     // 바탕화면(여백) 클릭 시 선택 해제 처리
     const handleBackgroundClick = (event) => {
       // 클릭된 요소가 카메라 컨테이너가 아닌 경우에만 선택 해제
-      const isClickOnCamera = event.target.closest('.camera-container');
+      const isClickOnCamera = event.target.closest(".camera-container");
       if (!isClickOnCamera && selectedCamera) {
         setSelectedCamera(null);
-        debugLog('카메라 선택 해제됨 (배경 클릭)');
+        debugLog("카메라 선택 해제됨 (배경 클릭)");
       }
     };
-    
+
     // 이벤트 리스너 등록
-    window.addEventListener('radarResult', handleExternalRadarResult);
-    window.addEventListener('click', handleBackgroundClick);
-    
+    window.addEventListener("radarResult", handleExternalRadarResult);
+    window.addEventListener("click", handleBackgroundClick);
+
     // 클린업 함수
     return () => {
-      window.removeEventListener('radarResult', handleExternalRadarResult);
-      window.removeEventListener('click', handleBackgroundClick);
+      window.removeEventListener("radarResult", handleExternalRadarResult);
+      window.removeEventListener("click", handleBackgroundClick);
     };
   }, [selectedCamera, debugLog]);
   // 카메라 제어 함수 - 방향 명령 한 번만 보내기
-  const controlCamera = useCallback((streamId, direction) => {
-    const socket = wsConnectionsRef.current[streamId];
-    const camera = cameras.find(cam => 
-      `${cam.id}-${cam.type}` === streamId
-    );
+  const controlCamera = useCallback(
+    (streamId, direction) => {
+      const socket = wsConnectionsRef.current[streamId];
+      const camera = cameras.find((cam) => `${cam.id}-${cam.type}` === streamId);
 
-    // 이미 같은 방향의 컨트롤이 활성화되어 있는지 확인
-    if (activeControls[streamId] === direction) {
-      debugLog(`컨트롤 무시: 슬롯 ${streamId}에 이미 ${direction} 방향이 활성화됨`);
-      return;
-    }
+      // 이미 같은 방향의 컨트롤이 활성화되어 있는지 확인
+      if (activeControls[streamId] === direction) {
+        debugLog(`컨트롤 무시: 슬롯 ${streamId}에 이미 ${direction} 방향이 활성화됨`);
+        return;
+      }
 
-    // 웹소켓 연결 확인
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      // 명령 전송 (한 번만)
-      const controlMessage = {
-        type: 'camera_control',
-        direction: direction
-      };
+      // 웹소켓 연결 확인
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        // 명령 전송 (한 번만)
+        const controlMessage = {
+          type: "camera_control",
+          direction: direction,
+        };
 
-      socket.send(JSON.stringify(controlMessage));
-      console.log(`전송한 메시지: ${JSON.stringify(controlMessage)}`);
-      debugLog(`카메라 제어 명령 전송: ${camera?.name} - ${direction}`);
+        socket.send(JSON.stringify(controlMessage));
+        console.log(`전송한 메시지: ${JSON.stringify(controlMessage)}`);
+        debugLog(`카메라 제어 명령 전송: ${camera?.name} - ${direction}`);
 
-      // 활성화된 컨트롤 상태 업데이트
-      setActiveControls(prev => ({
-        ...prev,
-        [streamId]: direction
-      }));
-    } else {
-      debugLog(`웹소켓 연결 상태 오류: ${streamId}`);
-    }
-  }, [cameras, activeControls, debugLog]);
+        // 활성화된 컨트롤 상태 업데이트
+        setActiveControls((prev) => ({
+          ...prev,
+          [streamId]: direction,
+        }));
+      } else {
+        debugLog(`웹소켓 연결 상태 오류: ${streamId}`);
+      }
+    },
+    [cameras, activeControls, debugLog]
+  );
 
   // 카메라 정지 함수
-  const stopCamera = useCallback((streamId) => {
-    const socket = wsConnectionsRef.current[streamId];
-    const camera = cameras.find(cam => 
-      `${cam.id}-${cam.type}` === streamId
-    );
+  const stopCamera = useCallback(
+    (streamId) => {
+      const socket = wsConnectionsRef.current[streamId];
+      const camera = cameras.find((cam) => `${cam.id}-${cam.type}` === streamId);
 
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      // 정지 명령 전송
-      const stopMessage = {
-        type: 'camera_control',
-        direction: 'stop'
-      };
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        // 정지 명령 전송
+        const stopMessage = {
+          type: "camera_control",
+          direction: "stop",
+        };
 
-      socket.send(JSON.stringify(stopMessage));
-      console.log(`전송한 정지 메시지: ${JSON.stringify(stopMessage)}`);
-      debugLog(`카메라 정지 명령 전송: ${camera?.name}`);
+        socket.send(JSON.stringify(stopMessage));
+        console.log(`전송한 정지 메시지: ${JSON.stringify(stopMessage)}`);
+        debugLog(`카메라 정지 명령 전송: ${camera?.name}`);
 
-      // 활성화된 컨트롤 상태 제거
-      setActiveControls(prev => {
-        const newControls = {...prev};
-        delete newControls[streamId];
-        return newControls;
-      });
-    } else {
-      debugLog(`웹소켓 연결 상태 오류: ${streamId}`);
-    }
-  }, [cameras, debugLog]);
-  
+        // 활성화된 컨트롤 상태 제거
+        setActiveControls((prev) => {
+          const newControls = { ...prev };
+          delete newControls[streamId];
+          return newControls;
+        });
+      } else {
+        debugLog(`웹소켓 연결 상태 오류: ${streamId}`);
+      }
+    },
+    [cameras, debugLog]
+  );
+
   // 카메라 선택 처리 함수
   const handleCameraSelect = (streamId) => {
-    if (videoStreams[streamId]) { // 연결된 카메라만 선택 가능
+    if (videoStreams[streamId]) {
+      // 연결된 카메라만 선택 가능
       setSelectedCamera(streamId);
       debugLog(`카메라 선택됨: ${streamId}`);
     }
@@ -145,7 +148,7 @@ function WebSocketVideoTest() {
 
   // 영역 경계와 관련된 표시
   const renderCameraInfo = (camera) => (
-    <div className='absolute top-0 left-0 p-2 bg-gray-900 text-white rounded-br-lg z-10'>
+    <div className="absolute top-0 left-0 p-2 bg-gray-900 text-white rounded-br-lg z-10">
       {camera.name} - {camera.type}
     </div>
   );
@@ -153,23 +156,24 @@ function WebSocketVideoTest() {
   // 레이더 결과 표시 컴포넌트 (카메라 정보 아래 간단 표시)
   const renderRadarDistance = (cameraId) => {
     const result = radarResults[cameraId];
-    
+
     if (result) {
       // 거리 값 계산
       let distance = 0;
       if (result.success && result.calculated_distance) {
         distance = Math.round(result.calculated_distance); // cm 단위로 반올림
       }
-      
+
       return (
-        <div className={`absolute top-14 left-0 p-2 rounded-br-lg z-10 ${
-          result.success ? 'bg-green-600' : 'bg-red-600'
-        } text-white text-sm font-semibold`}>
+        <div
+          className={`absolute top-14 left-0 p-2 rounded-br-lg z-10 ${
+            result.success ? "bg-green-600" : "bg-red-600"
+          } text-white text-sm font-semibold`}>
           거리: {distance} cm
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -180,21 +184,21 @@ function WebSocketVideoTest() {
 
     useEffect(() => {
       let animationFrame = null;
-      
+
       if (isActive) {
         // 백엔드와 동일한 깜빡임 로직: int(time.time() * 2) % 2 == 0
         const updateBlinking = () => {
           const now = Date.now() / 1000; // 초 단위
           const shouldShow = Math.floor(now * 2) % 2 === 0; // 0.5초마다 전환
-          
+
           setShowWarning(shouldShow);
           setCurrentTime(Date.now());
-          
+
           if (isActive) {
             animationFrame = requestAnimationFrame(updateBlinking);
           }
         };
-        
+
         updateBlinking();
       } else {
         setShowWarning(false);
@@ -215,66 +219,64 @@ function WebSocketVideoTest() {
     const calculateFontSize = () => {
       // 텍스트 길이에 따른 기본 폰트 크기 결정
       const textLength = warningText.length;
-      
+
       let baseFontSize;
       if (textLength <= 8) {
         baseFontSize = 32; // 짧은 텍스트
       } else if (textLength <= 12) {
-        baseFontSize = 28; // 중간 텍스트 
+        baseFontSize = 28; // 중간 텍스트
       } else if (textLength <= 16) {
         baseFontSize = 24; // 긴 텍스트
       } else {
         baseFontSize = 20; // 매우 긴 텍스트
       }
-      
+
       // 뷰포트 크기 고려한 추가 조정
       const viewportWidth = window.innerWidth;
       const maxWidth = Math.min(viewportWidth * 0.6, 600); // 최대 600px 또는 화면의 60%
-      
+
       // 한글 문자 너비 추정 (폰트 크기 * 0.9)
       const estimatedWidth = textLength * baseFontSize * 0.9;
-      
+
       if (estimatedWidth > maxWidth) {
         const scaleFactor = maxWidth / estimatedWidth;
         baseFontSize = Math.max(16, Math.floor(baseFontSize * scaleFactor)); // 최소 16px
       }
-      
+
       return baseFontSize;
     };
 
     const fontSize = calculateFontSize();
 
     return (
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none z-50"
         data-stream-id={streamId}
-        style={{ 
-          border: showWarning ? '8px solid #FF0000' : 'none',
-          boxSizing: 'border-box'
-        }}
-      >
+        style={{
+          border: showWarning ? "8px solid #FF0000" : "none",
+          boxSizing: "border-box",
+        }}>
         {showWarning && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div 
+            <div
               style={{
-                backgroundColor: 'rgba(255, 0, 0, 0.706)', // 180/255 = 0.706 (정확한 백엔드 값)
+                backgroundColor: "rgba(255, 0, 0, 0.706)", // 180/255 = 0.706 (정확한 백엔드 값)
                 fontFamily: 'system-ui, -apple-system, "Malgun Gothic", "맑은 고딕", sans-serif',
                 fontSize: `${fontSize}px`, // 동적 폰트 크기
-                color: 'white',
-                fontWeight: 'bold',
+                color: "white",
+                fontWeight: "bold",
                 padding: `${Math.max(12, fontSize * 0.3)}px ${Math.max(16, fontSize * 0.5)}px`, // 더 컴팩트한 패딩
-                borderRadius: '0px', // 백엔드는 모서리 둥글지 않음
-                whiteSpace: 'nowrap',
-                maxWidth: '90%', // 더 넓게 허용
-                minWidth: 'fit-content', // 내용에 맞는 최소 너비
-                overflow: 'visible', // 텍스트가 보이도록
-                textAlign: 'center',
-                lineHeight: '1.1', // 약간 여유 있는 행간
+                borderRadius: "0px", // 백엔드는 모서리 둥글지 않음
+                whiteSpace: "nowrap",
+                maxWidth: "90%", // 더 넓게 허용
+                minWidth: "fit-content", // 내용에 맞는 최소 너비
+                overflow: "visible", // 텍스트가 보이도록
+                textAlign: "center",
+                lineHeight: "1.1", // 약간 여유 있는 행간
                 zIndex: 9999,
-                display: 'inline-block',
-                boxSizing: 'border-box'
-              }}
-            >
+                display: "inline-block",
+                boxSizing: "border-box",
+              }}>
               {warningText}
             </div>
           </div>
@@ -282,7 +284,7 @@ function WebSocketVideoTest() {
       </div>
     );
   };
-  
+
   // 키보드 이벤트 핸들러 (레이더 제거)
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -290,28 +292,28 @@ function WebSocketVideoTest() {
       if (selectedCamera) {
         // WASD 키 처리 - 키 반복 이벤트는 무시
         const key = event.key.toLowerCase();
-        if ((key === 'w' || key === 'a' || key === 's' || key === 'd') && !event.repeat) {
+        if ((key === "w" || key === "a" || key === "s" || key === "d") && !event.repeat) {
           let direction;
-          switch(key) {
-            case 'a':
-              direction = 'left';
+          switch (key) {
+            case "a":
+              direction = "left";
               break;
-            case 'd':
-              direction = 'right';
+            case "d":
+              direction = "right";
               break;
-            case 'w':
-              direction = 'down';
+            case "w":
+              direction = "down";
               break;
-            case 's':
-              direction = 'up';
+            case "s":
+              direction = "up";
               break;
           }
           controlCamera(selectedCamera, direction);
           debugLog(`키보드 단일 명령: ${direction} (${selectedCamera})`);
         }
-        
+
         // F키 누를 시 전체화면 전환
-        if (event.key.toLowerCase() === 'f' && !event.repeat) {
+        if (event.key.toLowerCase() === "f" && !event.repeat) {
           if (fullScreenStream === selectedCamera) {
             // 이미 전체화면이면 그리드 모드로 복귀
             setFullScreenStream(null);
@@ -324,166 +326,170 @@ function WebSocketVideoTest() {
         }
       }
     };
-    
+
     const handleKeyUp = (event) => {
       // 선택된 카메라가 있고 WASD 키를 뗐을 때
       const key = event.key.toLowerCase();
-      if (selectedCamera && (key === 'w' || key === 'a' || key === 's' || key === 'd')) {
+      if (selectedCamera && (key === "w" || key === "a" || key === "s" || key === "d")) {
         // 정지 명령 전송
         stopCamera(selectedCamera);
         debugLog(`키보드 정지 명령 (${selectedCamera})`);
       }
     };
-    
+
     // 이벤트 리스너 등록
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
     // 클린업 함수
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [selectedCamera, fullScreenStream, controlCamera, stopCamera, debugLog]);  
+  }, [selectedCamera, fullScreenStream, controlCamera, stopCamera, debugLog]);
 
-  const connectToCamera = useCallback((camera) => {
-    const streamId = `${camera.id}-${camera.type}`;
-    
-    // 이미 연결이 존재하고 열려있으면 재연결하지 않음
-    if (wsConnectionsRef.current[streamId] && 
-        wsConnectionsRef.current[streamId].readyState !== WebSocket.CLOSED) {
-      debugLog(`이미 연결이 활성화됨: ${streamId}`);
-      return;
-    }
-    
-    const wsUrl = `${wsProtocol}${wsHost}/ws/camera/${camera.id}/${camera.type}/`;
-    debugLog(`웹소켓 연결 시도: ${wsUrl}`);
-    
-    const socket = new WebSocket(wsUrl);
-    socket.binaryType = 'arraybuffer';  // 바이너리 타입 설정
-    
-    socket.onopen = () => {
-      debugLog(`웹소켓 연결 성공: ${streamId}`);
-      // 연결 확인을 위한 간단한 메시지만 전송
-      socket.send(JSON.stringify({
-        type: 'connection_init'
-      }));
-    };
-    
-    socket.onmessage = (event) => {
-      try {
-        if (event.data instanceof ArrayBuffer) {
-          // 이전 Blob URL이 있으면 해제
-          if (blobUrlsRef.current[streamId]) {
-            URL.revokeObjectURL(blobUrlsRef.current[streamId]);
-          }
-          
-          // 바이너리 데이터에서 Blob 생성
-          const blob = new Blob([event.data], { type: 'image/jpeg' });
-          const url = URL.createObjectURL(blob);
-          
-          // Blob URL 저장
-          blobUrlsRef.current[streamId] = url;
-          
-          // 상태 업데이트
-          setVideoStreams((prev) => ({
-            ...prev,
-            [streamId]: url,
-          }));
-        } else {
-          // 텍스트 메시지 처리
-          try {
-            const data = JSON.parse(event.data);
-            debugLog(`서버 메시지 수신 (${streamId}): ${JSON.stringify(data)}`);
+  const connectToCamera = useCallback(
+    (camera) => {
+      const streamId = `${camera.id}-${camera.type}`;
 
-            // 제어 응답 처리
-            if (data.type === 'camera_control_response') {
-              debugLog(`카메라 제어 응답: 방향=${data.direction}, 성공=${data.success}`);
-              
-              // 제어 실패 시 상태 초기화
-              if (!data.success) {
-                setActiveControls(prev => {
-                  const newControls = {...prev};
-                  delete newControls[streamId];
-                  return newControls;
-                });
-              }
+      // 이미 연결이 존재하고 열려있으면 재연결하지 않음
+      if (wsConnectionsRef.current[streamId] && wsConnectionsRef.current[streamId].readyState !== WebSocket.CLOSED) {
+        debugLog(`이미 연결이 활성화됨: ${streamId}`);
+        return;
+      }
+
+      const wsUrl = `${wsProtocol}${wsHost}/ws/camera/${camera.id}/${camera.type}/`;
+      debugLog(`웹소켓 연결 시도: ${wsUrl}`);
+
+      const socket = new WebSocket(wsUrl);
+      socket.binaryType = "arraybuffer"; // 바이너리 타입 설정
+
+      socket.onopen = () => {
+        debugLog(`웹소켓 연결 성공: ${streamId}`);
+        // 연결 확인을 위한 간단한 메시지만 전송
+        socket.send(
+          JSON.stringify({
+            type: "connection_init",
+          })
+        );
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          if (event.data instanceof ArrayBuffer) {
+            // 이전 Blob URL이 있으면 해제
+            if (blobUrlsRef.current[streamId]) {
+              URL.revokeObjectURL(blobUrlsRef.current[streamId]);
             }
 
-            // 경고 상태 처리
-            if (data.type === 'warning_status') {
-              setWarningStatus(prev => ({
-                ...prev,
-                [data.camera_id]: {
-                  active: data.warning_active,
-                  cameraName: data.camera_name,
-                  timestamp: data.timestamp
+            // 바이너리 데이터에서 Blob 생성
+            const blob = new Blob([event.data], { type: "image/jpeg" });
+            const url = URL.createObjectURL(blob);
+
+            // Blob URL 저장
+            blobUrlsRef.current[streamId] = url;
+
+            // 상태 업데이트
+            setVideoStreams((prev) => ({
+              ...prev,
+              [streamId]: url,
+            }));
+          } else {
+            // 텍스트 메시지 처리
+            try {
+              const data = JSON.parse(event.data);
+              debugLog(`서버 메시지 수신 (${streamId}): ${JSON.stringify(data)}`);
+
+              // 제어 응답 처리
+              if (data.type === "camera_control_response") {
+                debugLog(`카메라 제어 응답: 방향=${data.direction}, 성공=${data.success}`);
+
+                // 제어 실패 시 상태 초기화
+                if (!data.success) {
+                  setActiveControls((prev) => {
+                    const newControls = { ...prev };
+                    delete newControls[streamId];
+                    return newControls;
+                  });
                 }
-              }));
-
-              // 경고가 활성화된 경우 3초 후 자동으로 비활성화
-              if (data.warning_active) {
-                setTimeout(() => {
-                  setWarningStatus(prev => ({
-                    ...prev,
-                    [data.camera_id]: {
-                      ...prev[data.camera_id],
-                      active: false
-                    }
-                  }));
-                }, 3000);
               }
+
+              // 경고 상태 처리
+              if (data.type === "warning_status") {
+                setWarningStatus((prev) => ({
+                  ...prev,
+                  [data.camera_id]: {
+                    active: data.warning_active,
+                    cameraName: data.camera_name,
+                    timestamp: data.timestamp,
+                  },
+                }));
+
+                // 경고가 활성화된 경우 3초 후 자동으로 비활성화
+                if (data.warning_active) {
+                  setTimeout(() => {
+                    setWarningStatus((prev) => ({
+                      ...prev,
+                      [data.camera_id]: {
+                        ...prev[data.camera_id],
+                        active: false,
+                      },
+                    }));
+                  }, 3000);
+                }
+              }
+            } catch (parseError) {
+              console.error("메시지 파싱 오류:", parseError.message);
             }
-          } catch (parseError) {
-            console.error('메시지 파싱 오류:', parseError.message);
           }
+        } catch (error) {
+          console.error("메시지 처리 오류:", error.message);
         }
-      } catch (error) {
-        console.error('메시지 처리 오류:', error.message);
-      }
-    };
-    
-    socket.onclose = (event) => {
-      debugLog(`웹소켓 연결 종료: 코드=${event.code}, 이유=${event.reason || '없음'}`);
-      
-      // 연결이 정상적으로 종료된 경우에만 참조에서 제거
-      if (event.code === 1000 || event.code === 1001) {
-        delete wsConnectionsRef.current[streamId];
-      } else {
-        // 비정상 종료시 재연결 시도 (단, 컴포넌트가 마운트된 상태일 때만)
-        setTimeout(() => {
-          if (connectionsInitializedRef.current) {
-            debugLog(`5초 후 재연결 시도: ${streamId}`);
-            connectToCamera(camera);
-          }
-        }, 5000);
-      }
-    };
-    
-    socket.onerror = (error) => {
-      debugLog(`웹소켓 오류: ${streamId}, ${error.message || '알 수 없는 오류'}`);
-    };
-    
-    wsConnectionsRef.current[streamId] = socket;
-  }, [debugLog]);
-  
+      };
+
+      socket.onclose = (event) => {
+        debugLog(`웹소켓 연결 종료: 코드=${event.code}, 이유=${event.reason || "없음"}`);
+
+        // 연결이 정상적으로 종료된 경우에만 참조에서 제거
+        if (event.code === 1000 || event.code === 1001) {
+          delete wsConnectionsRef.current[streamId];
+        } else {
+          // 비정상 종료시 재연결 시도 (단, 컴포넌트가 마운트된 상태일 때만)
+          setTimeout(() => {
+            if (connectionsInitializedRef.current) {
+              debugLog(`5초 후 재연결 시도: ${streamId}`);
+              connectToCamera(camera);
+            }
+          }, 5000);
+        }
+      };
+
+      socket.onerror = (error) => {
+        debugLog(`웹소켓 오류: ${streamId}, ${error.message || "알 수 없는 오류"}`);
+      };
+
+      wsConnectionsRef.current[streamId] = socket;
+    },
+    [debugLog]
+  );
+
   // 카메라 연결 설정 - 딱 한 번만 실행되도록 보장
   useEffect(() => {
     // 이미 초기화되었으면 아무것도 하지 않음
     if (connectionsInitializedRef.current) {
       return;
     }
-    
-    debugLog('카메라 연결 초기화...');
+
+    debugLog("카메라 연결 초기화...");
     connectionsInitializedRef.current = true;
-    
+
     // 각 카메라에 한 번씩만 연결
     cameras.forEach(connectToCamera);
-    
+
     // 정리 함수
     return () => {
       connectionsInitializedRef.current = false;
-      
+
       // WebSocket 연결 종료
       Object.entries(wsConnectionsRef.current).forEach(([id, socket]) => {
         debugLog(`정리: WebSocket 연결 종료 (${id})`);
@@ -491,16 +497,16 @@ function WebSocketVideoTest() {
           socket.close(1000, "컴포넌트 언마운트");
         }
       });
-      
+
       // Blob URL 정리
       Object.values(blobUrlsRef.current).forEach((url) => {
         URL.revokeObjectURL(url);
       });
     };
   }, [connectToCamera]);
-  
+
   return (
-    <div className={`mr-8 ${fullScreenStream ? '' : 'grid grid-cols-2 grid-rows-2 gap-2'}`}>
+    <div className={`mr-8 ${fullScreenStream ? "" : "grid grid-cols-2 grid-rows-2 gap-2"}`}>
       {/* 키보드 단축키 안내 (레이더 제거) */}
       {selectedCamera && (
         <div className="fixed top-4 right-4 bg-black bg-opacity-75 text-white p-3 rounded-lg text-sm z-30">
@@ -509,33 +515,25 @@ function WebSocketVideoTest() {
           <p>F: 전체화면 토글</p>
         </div>
       )}
-      
+
       {/* 전체화면 */}
       {fullScreenStream ? (
         <div
           className={`
             w-full h-full bg-gray-800 border-2 rounded-lg relative aspect-[16/9]
             flex items-center justify-center transition-all duration-300 overflow-hidden camera-container
-            ${selectedCamera === fullScreenStream ? 'border-green-500' : 'border-gray-600'}
-          `}
-        >
+            ${selectedCamera === fullScreenStream ? "border-green-500" : "border-gray-600"}
+          `}>
           {/* 카메라 정보 표시 */}
-          {renderCameraInfo(
-            cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)
-          )}
+          {renderCameraInfo(cameras.find((cam) => `${cam.id}-${cam.type}` === fullScreenStream))}
 
           {/* 레이더 거리 표시 */}
-          {renderRadarDistance(
-            cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)?.id
-          )}
+          {renderRadarDistance(cameras.find((cam) => `${cam.id}-${cam.type}` === fullScreenStream)?.id)}
 
           {/* 클릭 시 카메라 선택 (선택된 경우엔 무반응) */}
           <div
             className="absolute inset-0 cursor-pointer"
-            onClick={() =>
-              selectedCamera !== fullScreenStream && handleCameraSelect(fullScreenStream)
-            }
-          ></div>
+            onClick={() => selectedCamera !== fullScreenStream && handleCameraSelect(fullScreenStream)}></div>
 
           {/* 실시간 스트림 영상 */}
           <img
@@ -546,20 +544,20 @@ function WebSocketVideoTest() {
 
           {/* 경고 오버레이 - AI 영상에만 표시 */}
           {(() => {
-            const camera = cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream);
+            const camera = cameras.find((cam) => `${cam.id}-${cam.type}` === fullScreenStream);
             const cameraId = camera?.id;
             const warningInfo = warningStatus[cameraId];
-            
+
             // AI 영상인지 확인
-            const isAiStream = camera?.type === 'ai';
-            
+            const isAiStream = camera?.type === "ai";
+
             // AI 영상일 때만 경고 표시
             if (!isAiStream) return null;
-            
+
             return (
               <WarningOverlay
                 streamId={fullScreenStream}
-                cameraName={warningInfo?.cameraName || camera?.name || ''}
+                cameraName={warningInfo?.cameraName || camera?.name || ""}
                 isActive={warningInfo?.active || false}
               />
             );
@@ -574,9 +572,7 @@ function WebSocketVideoTest() {
           </div>
 
           {/* 레이더 결과 표시 */}
-          {renderRadarDistance(
-            cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream)?.id
-          )}
+          {renderRadarDistance(cameras.find((cam) => `${cam.id}-${cam.type}` === fullScreenStream)?.id)}
         </div>
       ) : (
         // 그리드 레이아웃 모드 - 고정 위치에 카메라 표시
@@ -585,43 +581,40 @@ function WebSocketVideoTest() {
             const streamId = `${camera.id}-${camera.type}`;
             const isSelected = selectedCamera === streamId;
             const hasStream = videoStreams[streamId] !== undefined;
-            
+
             return (
-              <div 
-                key={streamId} 
+              <div
+                key={streamId}
                 className={`bg-gray-800 border-2 ${
-                  isSelected ? 'border-green-500' : 'border-gray-600'
-                } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}
-              >
+                  isSelected ? "border-green-500" : "border-gray-600"
+                } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}>
                 {renderCameraInfo(camera)}
-                
-                
+
                 {/* 레이더 거리 표시 */}
                 {renderRadarDistance(camera.id)}
-                
+
                 {hasStream ? (
                   <>
-                    <div 
+                    <div
                       className="w-full h-full absolute top-0 left-0 cursor-pointer"
-                      onClick={() => selectedCamera !== streamId ? handleCameraSelect(streamId) : null}
-                    ></div>
-                    
-                    <img 
-                      src={videoStreams[streamId]} 
-                      alt={`Stream ${streamId}`} 
-                      className='w-full h-full object-cover' 
+                      onClick={() => (selectedCamera !== streamId ? handleCameraSelect(streamId) : null)}></div>
+
+                    <img
+                      src={videoStreams[streamId]}
+                      alt={`Stream ${streamId}`}
+                      className="w-full h-full object-cover"
                     />
 
                     {/* 경고 오버레이 - AI 영상에만 표시 */}
                     {(() => {
                       const warningInfo = warningStatus[camera.id];
-                      
+
                       // AI 영상인지 확인
-                      const isAiStream = camera.type === 'ai';
-                      
+                      const isAiStream = camera.type === "ai";
+
                       // AI 영상일 때만 경고 표시
                       if (!isAiStream) return null;
-                      
+
                       return (
                         <WarningOverlay
                           streamId={streamId}
@@ -632,8 +625,8 @@ function WebSocketVideoTest() {
                     })()}
                   </>
                 ) : (
-                  <div className='flex flex-col items-center justify-center text-gray-400'>
-                    <div className='text-3xl mb-2'>⚠️</div>
+                  <div className="flex flex-col items-center justify-center text-gray-400">
+                    <div className="text-3xl mb-2">⚠️</div>
                     <p>카메라 연결 중...</p>
                   </div>
                 )}
