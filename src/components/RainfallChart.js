@@ -1,6 +1,5 @@
 // RainfallChart.js 수정
 import React, { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -108,7 +107,7 @@ export default function RainfallChart() {
   return (
     <div className="w-1/2 h-[25rem] bg-white p-6 shadow-lg rounded-lg relative">
       <h2 className="text-xl font-semibold text-gray-700 text-center mb-4">🌧️ 강수량 그래프</h2>
-      <Link className="absolute top-6 right-6 text-blue-500 hover:underline" to="/weathers">더보기</Link>
+      {/*<Link className="absolute top-6 right-6 text-blue-500 hover:underline" to="/weathers">더보기</Link>*/}
 
       {/* CCTV 선택 리스트 박스 */}
       <div className="mb-4 text-center">

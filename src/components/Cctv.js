@@ -8,6 +8,7 @@ function WebSocketVideoTest() {
   const [activeControls, setActiveControls] = useState({});
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [radarResults, setRadarResults] = useState({}); // 레이더 결과 상태 추가
+  const [warningStatus, setWarningStatus] = useState({}); // 경고 상태 추가
   
   const wsConnectionsRef = useRef({});
   const blobUrlsRef = useRef({});
@@ -171,6 +172,116 @@ function WebSocketVideoTest() {
     
     return null;
   };
+
+  // 경고 오버레이 컴포넌트 - 백엔드와 동일한 스타일
+  const WarningOverlay = ({ streamId, cameraName, isActive }) => {
+    const [showWarning, setShowWarning] = useState(false);
+    const [currentTime, setCurrentTime] = useState(Date.now());
+
+    useEffect(() => {
+      let animationFrame = null;
+      
+      if (isActive) {
+        // 백엔드와 동일한 깜빡임 로직: int(time.time() * 2) % 2 == 0
+        const updateBlinking = () => {
+          const now = Date.now() / 1000; // 초 단위
+          const shouldShow = Math.floor(now * 2) % 2 === 0; // 0.5초마다 전환
+          
+          setShowWarning(shouldShow);
+          setCurrentTime(Date.now());
+          
+          if (isActive) {
+            animationFrame = requestAnimationFrame(updateBlinking);
+          }
+        };
+        
+        updateBlinking();
+      } else {
+        setShowWarning(false);
+      }
+
+      return () => {
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+        }
+      };
+    }, [isActive, streamId, cameraName]);
+
+    if (!isActive) return null;
+
+    const warningText = `${cameraName} 익수자 감지!`;
+
+    // 텍스트가 박스에 맞도록 폰트 크기 계산
+    const calculateFontSize = () => {
+      // 텍스트 길이에 따른 기본 폰트 크기 결정
+      const textLength = warningText.length;
+      
+      let baseFontSize;
+      if (textLength <= 8) {
+        baseFontSize = 32; // 짧은 텍스트
+      } else if (textLength <= 12) {
+        baseFontSize = 28; // 중간 텍스트 
+      } else if (textLength <= 16) {
+        baseFontSize = 24; // 긴 텍스트
+      } else {
+        baseFontSize = 20; // 매우 긴 텍스트
+      }
+      
+      // 뷰포트 크기 고려한 추가 조정
+      const viewportWidth = window.innerWidth;
+      const maxWidth = Math.min(viewportWidth * 0.6, 600); // 최대 600px 또는 화면의 60%
+      
+      // 한글 문자 너비 추정 (폰트 크기 * 0.9)
+      const estimatedWidth = textLength * baseFontSize * 0.9;
+      
+      if (estimatedWidth > maxWidth) {
+        const scaleFactor = maxWidth / estimatedWidth;
+        baseFontSize = Math.max(16, Math.floor(baseFontSize * scaleFactor)); // 최소 16px
+      }
+      
+      return baseFontSize;
+    };
+
+    const fontSize = calculateFontSize();
+
+    return (
+      <div 
+        className="absolute inset-0 pointer-events-none z-50"
+        data-stream-id={streamId}
+        style={{ 
+          border: showWarning ? '8px solid #FF0000' : 'none',
+          boxSizing: 'border-box'
+        }}
+      >
+        {showWarning && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div 
+              style={{
+                backgroundColor: 'rgba(255, 0, 0, 0.706)', // 180/255 = 0.706 (정확한 백엔드 값)
+                fontFamily: 'system-ui, -apple-system, "Malgun Gothic", "맑은 고딕", sans-serif',
+                fontSize: `${fontSize}px`, // 동적 폰트 크기
+                color: 'white',
+                fontWeight: 'bold',
+                padding: `${Math.max(12, fontSize * 0.3)}px ${Math.max(16, fontSize * 0.5)}px`, // 더 컴팩트한 패딩
+                borderRadius: '0px', // 백엔드는 모서리 둥글지 않음
+                whiteSpace: 'nowrap',
+                maxWidth: '90%', // 더 넓게 허용
+                minWidth: 'fit-content', // 내용에 맞는 최소 너비
+                overflow: 'visible', // 텍스트가 보이도록
+                textAlign: 'center',
+                lineHeight: '1.1', // 약간 여유 있는 행간
+                zIndex: 9999,
+                display: 'inline-block',
+                boxSizing: 'border-box'
+              }}
+            >
+              {warningText}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
   
   // 키보드 이벤트 핸들러 (레이더 제거)
   useEffect(() => {
@@ -298,12 +409,37 @@ function WebSocketVideoTest() {
                 });
               }
             }
+
+            // 경고 상태 처리
+            if (data.type === 'warning_status') {
+              setWarningStatus(prev => ({
+                ...prev,
+                [data.camera_id]: {
+                  active: data.warning_active,
+                  cameraName: data.camera_name,
+                  timestamp: data.timestamp
+                }
+              }));
+
+              // 경고가 활성화된 경우 3초 후 자동으로 비활성화
+              if (data.warning_active) {
+                setTimeout(() => {
+                  setWarningStatus(prev => ({
+                    ...prev,
+                    [data.camera_id]: {
+                      ...prev[data.camera_id],
+                      active: false
+                    }
+                  }));
+                }, 3000);
+              }
+            }
           } catch (parseError) {
-            debugLog(`메시지 파싱 오류: ${parseError.message}`);
+            console.error('메시지 파싱 오류:', parseError.message);
           }
         }
       } catch (error) {
-        debugLog(`메시지 처리 오류: ${error.message}`);
+        console.error('메시지 처리 오류:', error.message);
       }
     };
     
@@ -408,6 +544,27 @@ function WebSocketVideoTest() {
             className="w-full h-full object-cover"
           />
 
+          {/* 경고 오버레이 - AI 영상에만 표시 */}
+          {(() => {
+            const camera = cameras.find(cam => `${cam.id}-${cam.type}` === fullScreenStream);
+            const cameraId = camera?.id;
+            const warningInfo = warningStatus[cameraId];
+            
+            // AI 영상인지 확인
+            const isAiStream = camera?.type === 'ai';
+            
+            // AI 영상일 때만 경고 표시
+            if (!isAiStream) return null;
+            
+            return (
+              <WarningOverlay
+                streamId={fullScreenStream}
+                cameraName={warningInfo?.cameraName || camera?.name || ''}
+                isActive={warningInfo?.active || false}
+              />
+            );
+          })()}
+
           {/* 중앙 십자가 오버레이 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
             <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -454,6 +611,25 @@ function WebSocketVideoTest() {
                       alt={`Stream ${streamId}`} 
                       className='w-full h-full object-cover' 
                     />
+
+                    {/* 경고 오버레이 - AI 영상에만 표시 */}
+                    {(() => {
+                      const warningInfo = warningStatus[camera.id];
+                      
+                      // AI 영상인지 확인
+                      const isAiStream = camera.type === 'ai';
+                      
+                      // AI 영상일 때만 경고 표시
+                      if (!isAiStream) return null;
+                      
+                      return (
+                        <WarningOverlay
+                          streamId={streamId}
+                          cameraName={warningInfo?.cameraName || camera.name}
+                          isActive={warningInfo?.active || false}
+                        />
+                      );
+                    })()}
                   </>
                 ) : (
                   <div className='flex flex-col items-center justify-center text-gray-400'>
