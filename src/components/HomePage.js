@@ -1,4 +1,4 @@
-import Cctv from "./Cctv";
+import Cctv from "./cctv";
 import RescueButton from "./RescueButton";
 import RainfallChart from "./RainfallChart";
 import RescueList from "./RescueList";

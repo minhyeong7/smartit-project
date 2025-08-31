@@ -47,17 +47,20 @@ export default function FlowStatus({ cctvId }) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-gray-500">
-        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-        <span className="text-sm">로딩중...</span>
+        <div class="w-5 h-5 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!flowData) {
     return (
-      <div className="flex items-center gap-2 text-gray-400">
-        <span className="text-sm">데이터 없음</span>
+
+       <div className="flex items-center gap-2 text-gray-500">
+        <div class="w-5 h-5 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
+      // <div className="flex items-center gap-2 text-gray-400">
+      //   <span className="text-sm">데이터 없음</span>
+      // </div>
     );
   }
 
