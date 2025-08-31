@@ -18,8 +18,8 @@ export default function RescueButton() {
   
   // CCTV ID와 표시명 매핑
   const cctvData = [
-    { id: "CCTV001", name: "백운계곡" },
-    { id: "CCTV002", name: "안덕계곡" }
+    { id: "CCTV001", name: "중부대계곡" },
+    { id: "CCTV002", name: "백운계곡" }
   ];
 
   const submitRescue = async (cctv_id) => {
