@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import Sidebar from "./Sidebar"; // Sidebar 컴포넌트를 가져옵니다.
+import  "./AllComponents.css"
 
 
 export default function Layout() {
@@ -24,7 +25,7 @@ export default function Layout() {
           </button>
 
           {/* 로고 / 홈 링크 */}
-          <Link to="/" className="text-blue-500 text-lg font-semibold ml-2">
+          <Link to="/" className="text-blue-500 text-xl font-semibold ml-2 tracking-in-expand">
             스마트 계곡 CCTV
           </Link>
         </div>

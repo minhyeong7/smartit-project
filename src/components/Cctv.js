@@ -146,10 +146,10 @@ function WebSocketVideoTest() {
     }
   };
 
-  // 영역 경계와 관련된 표시
+  // 각 CCTV 타이틀 
   const renderCameraInfo = (camera) => (
     <div className="absolute top-0 left-0 p-2 bg-gray-900 text-white rounded-br-lg z-10">
-      {camera.name} - {camera.type}
+      {camera.name} - {camera.type=="ai"? "AI": "원본"}
     </div>
   );
 
