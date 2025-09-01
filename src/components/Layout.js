@@ -25,8 +25,13 @@ export default function Layout() {
           </button>
 
           {/* 로고 / 홈 링크 */}
-          <Link to="/" className="text-blue-500 text-xl font-semibold ml-2 tracking-in-expand">
-            스마트 계곡 CCTV
+          <Link to="/" className="flex items-center text-black text-xl font-semibold ml-2 tracking-in-expand">
+            <img
+              src="/logo.png"   // public 폴더 기준 경로
+              alt="로고"
+              className="w-8 h-8 mr-2 object-contain"
+            />
+           SMV-<span className="text-purple-600">C</span>
           </Link>
         </div>
 
