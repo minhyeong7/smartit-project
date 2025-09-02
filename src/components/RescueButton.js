@@ -26,6 +26,7 @@ export default function RescueButton() {
   // 선택된 CCTV 정보 가져오기
   const selectedCctvData = cctvData.find(cctv => cctv.id === selectedCctv);
 
+  // 신고하기 api
   const submitRescue = async () => {
     try {
       const response = await postrescue({ cctv_id: selectedCctv });
@@ -35,6 +36,7 @@ export default function RescueButton() {
     }
   };
 
+  // 구조 알리기 api
   const submitAlert = async () => {
     try {
       const response = await getalert(selectedCctv);
@@ -44,6 +46,7 @@ export default function RescueButton() {
     }
   };
 
+  // 튜브 발사 api
   const submitLaunch = async () => {
     try {
       const response = await getlaunch(selectedCctv);
@@ -53,6 +56,7 @@ export default function RescueButton() {
     }
   };
 
+  // 레이더발사 api
   const submitRader = async () => {
     try {
       setRadarLoading(true);
@@ -90,14 +94,14 @@ export default function RescueButton() {
       <div className="bg-white border rounded-lg p-6 shadow-md w-80 flex flex-col items-center gap-4">
         {/* CCTV 선택 리스트박스 */}
         <div className="w-full">
-          <label htmlFor="cctv-select" className="block text-sm font-medium text-gray-700 mb-2">
+          {/* <label htmlFor="cctv-select" className="block text-md font-semibold text-blue-500 mb-2">
             계곡 선택
-          </label>
+          </label> */}
           <select
             id="cctv-select"
             value={selectedCctv}
             onChange={(e) => setSelectedCctv(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white "
           >
             {cctvData.map((cctv) => (
               <option key={cctv.id} value={cctv.id}>

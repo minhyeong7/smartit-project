@@ -4,7 +4,6 @@ import { wsProtocol, wsHost } from "../service/header";
 function WebSocketVideoTest() {
   const [videoStreams, setVideoStreams] = useState({});
   const [fullScreenStream, setFullScreenStream] = useState(null);
-  const [focusedSlot, setFocusedSlot] = useState(null);
   const [activeControls, setActiveControls] = useState({});
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [radarResults, setRadarResults] = useState({}); // 레이더 결과 상태 추가
@@ -288,7 +287,7 @@ function WebSocketVideoTest() {
   // 키보드 이벤트 핸들러 (레이더 제거)
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // 선택된 카메라가 있을 때만 키보드 제어 활성화
+      // 선택된 카메라가 있을 때만 키보드 제어활성화
       if (selectedCamera) {
         // WASD 키 처리 - 키 반복 이벤트는 무시
         const key = event.key.toLowerCase();
