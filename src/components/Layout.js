@@ -25,7 +25,7 @@ export default function Layout() {
           </button>
 
           {/* 로고 / 홈 링크 */}
-          <Link to="/" className="flex items-center text-black text-xl font-semibold ml-2 tracking-in-expand">
+          <Link to="/" className="flex items-center text-black text-xl font-semibold ml-2 tracking-in-expand font-serif">
             <img
               src="/logo.png"   // public 폴더 기준 경로
               alt="로고"
