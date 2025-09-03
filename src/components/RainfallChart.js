@@ -19,8 +19,8 @@ export default function RainfallChart() {
 
   // CCTV ID와 표시명 매핑
   const cctvOptions = [
-    { id: "CCTV001", name: "백운계곡" },
-    { id: "CCTV002", name: "안덕계곡" }
+    { id: "CCTV001", name: "중부대계곡" },
+    { id: "CCTV002", name: "백운계곡" }
   ];
 
   // 현재 선택된 CCTV의 이름 가져오기

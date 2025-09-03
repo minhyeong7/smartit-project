@@ -10,8 +10,8 @@ export default function RescueList() {
   // CCTV ID와 표시명 매핑
   const cctvOptions = [
     { id: "전체", name: "전체" },
-    { id: "CCTV001", name: "백운계곡" },
-    { id: "CCTV002", name: "안덕계곡" }
+    { id: "CCTV001", name: "중부대계곡" },
+    { id: "CCTV002", name: "백운계곡" }
   ];
 
   // ID를 이름으로 변환하는 함수

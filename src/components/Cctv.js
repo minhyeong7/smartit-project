@@ -4,7 +4,6 @@ import { wsProtocol, wsHost } from "../service/header";
 function WebSocketVideoTest() {
   const [videoStreams, setVideoStreams] = useState({});
   const [fullScreenStream, setFullScreenStream] = useState(null);
-  const [focusedSlot, setFocusedSlot] = useState(null);
   const [activeControls, setActiveControls] = useState({});
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [radarResults, setRadarResults] = useState({}); // 레이더 결과 상태 추가
@@ -15,10 +14,10 @@ function WebSocketVideoTest() {
   const connectionsInitializedRef = useRef(false);
 
   const cameras = [
-    { id: "CCTV001", name: "백운계곡", type: "original" },
-    { id: "CCTV001", name: "백운계곡", type: "ai" },
-    { id: "CCTV002", name: "안덕계곡", type: "original" },
-    { id: "CCTV002", name: "안덕계곡", type: "ai" },
+    { id: 'CCTV001', name: '중부대계곡', type: 'original' },
+    { id: 'CCTV001', name: '중부대계곡', type: 'ai' },
+    { id: 'CCTV002', name: '백운계곡', type: 'original' },
+    { id: 'CCTV002', name: '백운계곡', type: 'ai' },
   ];
 
   // 디버그 로그 함수
@@ -146,10 +145,10 @@ function WebSocketVideoTest() {
     }
   };
 
-  // 영역 경계와 관련된 표시
+  // 각 CCTV 타이틀 
   const renderCameraInfo = (camera) => (
     <div className="absolute top-0 left-0 p-2 bg-gray-900 text-white rounded-br-lg z-10">
-      {camera.name} - {camera.type}
+      {camera.name} - {camera.type=="ai"? "AI": "원본"}
     </div>
   );
 
@@ -288,7 +287,7 @@ function WebSocketVideoTest() {
   // 키보드 이벤트 핸들러 (레이더 제거)
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // 선택된 카메라가 있을 때만 키보드 제어 활성화
+      // 선택된 카메라가 있을 때만 키보드 제어활성화
       if (selectedCamera) {
         // WASD 키 처리 - 키 반복 이벤트는 무시
         const key = event.key.toLowerCase();
