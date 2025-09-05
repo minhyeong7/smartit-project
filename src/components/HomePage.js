@@ -2,13 +2,14 @@ import Cctv from "./Cctv";
 import RescueButton from "./RescueButton";
 import RainfallChart from "./RainfallChart";
 import RescueList from "./RescueList";
+import WeatherCard from "./WeatherCard";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="w-full h-[42rem] flex justify-center">
         <Cctv />
-        <RescueButton />
+        <RescueButton  />
       </div>
 
       {/* 대시보드 */}

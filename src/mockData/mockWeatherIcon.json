@@ -1,0 +1,32 @@
+[
+  {
+    "cctvId": "CCTV001",
+    "displayName": "서울 종로",
+    "weather": "clear"
+  },
+  {
+    "cctvId": "CCTV002",
+    "displayName": "부산 해운대",
+    "weather": "cloudy"
+  },
+  {
+    "cctvId": "CCTV003",
+    "displayName": "강원 설악산",
+    "weather": "overcast"
+  },
+  {
+    "cctvId": "CCTV004",
+    "displayName": "제주 한라산",
+    "weather": "rainsnow"
+  },
+  {
+    "cctvId": "CCTV005",
+    "displayName": "강릉 경포대",
+    "weather": "snow"
+  },
+  {
+    "cctvId": "CCTV006",
+    "displayName": "인천 송도",
+    "weather": "rain"
+  }
+]

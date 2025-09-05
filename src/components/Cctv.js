@@ -584,7 +584,7 @@ function WebSocketVideoTest() {
             return (
               <div
                 key={streamId}
-                className={`bg-gray-800 border-2 ${
+                className={`bg-gray-800  border-2 ${
                   isSelected ? "border-green-500" : "border-gray-600"
                 } rounded-lg relative aspect-[16/9] flex items-center justify-center transition-all duration-300 overflow-hidden camera-container`}>
                 {renderCameraInfo(camera)}

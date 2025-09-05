@@ -1,17 +1,20 @@
 // WeatherIcon.js 수정
 import { useState, useEffect } from "react";
-import { getweather, getweatherMock } from "../service/weather";
+import { getweather } from "../service/weather";
+
+
 
 export default function WeatherIcon({ cctvId, displayName }) {
   const [weatherData, setWeatherData] = useState({});
+   const [loading, setLoading] = useState(true);
 
   const iconLists = [
-    <img src="https://cdn-icons-png.flaticon.com/128/1163/1163662.png" alt="맑음" width="32" height="48" />,
-    <img src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" alt="구름 많음" width="32" height="48" />,
-    <img src="https://cdn-icons-png.flaticon.com/128/1163/1163624.png" alt="흐림" width="32" height="48" />,
-    <img src="https://cdn-icons-png.flaticon.com/128/3262/3262929.png" alt="진눈깨비" width="32" height="48" />,
-    <img src="https://cdn-icons-png.flaticon.com/128/1163/1163629.png" alt="눈" width="32" height="48" />,
-    <img src="https://cdn-icons-png.flaticon.com/128/3313/3313966.png" alt="비" width="32" height="48" />,
+    <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/1163/1163662.png" alt="맑음" width="32" height="48" />,
+    <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/1163/1163661.png" alt="구름 많음" width="32" height="48" />,
+    <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/1163/1163624.png" alt="흐림" width="32" height="48" />,
+    <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/3262/3262929.png" alt="진눈깨비" width="32" height="48" />,
+    <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/1163/1163629.png" alt="눈" width="32" height="48" />,
+    <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/3313/3313966.png" alt="비" width="32" height="48" />,
   ];
 
   const weatherToIndex = {
@@ -24,6 +27,7 @@ export default function WeatherIcon({ cctvId, displayName }) {
   };
 
   const fetchWeather = async () => {
+    setLoading(true);
     try {
       const res = await getweather(cctvId); // API 호출에는 여전히 cctvId 사용
       const code = res.weather.toLowerCase();
@@ -33,8 +37,16 @@ export default function WeatherIcon({ cctvId, displayName }) {
       }));
     } catch (err) {
       console.error(`${cctvId} 날씨 가져오기 실패:`, err);
+      setLoading(true);
     }
+
   };
+
+
+
+
+
+
 
   const getNextScheduledTime = () => {
     const now = new Date();
@@ -70,6 +82,7 @@ export default function WeatherIcon({ cctvId, displayName }) {
   };
 
   useEffect(() => {
+
     fetchWeather();
     scheduleNextFetch();
     
@@ -78,14 +91,16 @@ export default function WeatherIcon({ cctvId, displayName }) {
     };
   }, [cctvId]);
 
+
   return (
-    <div className="flex items-center justify-center w-full relative p-2">
-      {/* displayName이 있으면 사용, 없으면 cctvId 사용 */}
-      <h3 className="text-lg font-semibold text-gray-700 absolute">
-        {displayName || cctvId}
-      </h3>
-      {weatherData[cctvId] !== undefined && weatherData[cctvId] !== null && (
-        <div className="ml-48 w-20">{iconLists[weatherData[cctvId]]}</div>
+    <div className="relative border border-black h-44 w-2/5 mx-auto  mt-8">
+     {loading ? (
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      ) : (
+        weatherData[cctvId] !== undefined &&
+        weatherData[cctvId] !== null && (
+          <div className="w-16 h-16">{iconLists[weatherData[cctvId]]}</div>
+        )
       )}
     </div>
   );
