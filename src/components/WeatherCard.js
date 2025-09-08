@@ -1,6 +1,8 @@
  import WeatherIcon from "./WeatherIcon"
  import FlowStatus from "./FlowStatus"
+ import Temperature from "./Temperature";
  import { useState } from "react";
+
 
 
   const cctvData = [
@@ -17,7 +19,7 @@
     return(
         <>
             {/* WeatherIcon과 FlowStatus를 함께 배치 */}
-            <div className="border h-full w-full">
+            <div className="border h-full w-full ">
                 {/* CCTV 선택 리스트박스 */}
                 <div className="w-full ">
                     <select
@@ -36,7 +38,8 @@
 
 
 
-                <WeatherIcon cctvId={selectedCctv} displayName={selectedCctvData?.name} />
+                <WeatherIcon cctvId={selectedCctv}/>
+                <Temperature cctvId={selectedCctv} />
                 <FlowStatus cctvId={selectedCctv} />
 
                

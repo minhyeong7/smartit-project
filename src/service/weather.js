@@ -2,30 +2,30 @@ import {server } from "./header";
 import rainfallData from '../mockData/mockRainfallData.json';
 import weatherIconData from '../mockData/mockWeatherIcon.json'
 import flowStatusData from '../mockData/mockFlowData.json'
-
+import tempData from '../mockData/mockTempData.json'
 
 
 //------------------------------------------------------------------
 
 
 // 날씨 아이콘 서버에서 불러오기 
- export async function getweather(cctvId) {
-  const res = await fetch(`${server}/weather/icon/${cctvId}/`)
+//  export async function getweather(cctvId) {
+//   const res = await fetch(`${server}/weather/icon/${cctvId}/`)
 
-  if(!res.ok){
-    throw new Error(res.statusText + "Error");
-  }
+//   if(!res.ok){
+//     throw new Error(res.statusText + "Error");
+//   }
 
-  return await res.json();
- }
+//   return await res.json();
+//  }
 
 // 목데이터로 날씨아이콘 가져오기
-// export async function getweather(cctvId) {
-//   // CCTV ID에 맞는 데이터 찾기
-//   const result = weatherIconData.find(item => item.cctvId === cctvId);
+export async function getweather(cctvId) {
+  // CCTV ID에 맞는 데이터 찾기
+  const result = weatherIconData.find(item => item.cctvId === cctvId);
 
-//   return result;
-// }
+  return result;
+}
 
 
 
@@ -79,5 +79,25 @@ export async function getflowstatus(cctvId){
 
   return result;
 }
+
+// ------------------------------------------------------------------------------
+
+// 온도 데이터 불러오기
+// export async function gettemperature(cctvId) {
+//   const res =await fetch(`${server}/weather/temperature/${cctvId}`,)
+//   if (!res.ok){
+//      throw new Error(res.statusText + "Error");
+//   }
+//    return await res.json();
+// }
+
+//  온도 목데이터 불러오기
+export async function gettemperature(cctvId){
+  const result = tempData.find(item => item.cctvId === cctvId);
+
+  return result
+}
+
+
 
 

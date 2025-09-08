@@ -35,6 +35,7 @@ export default function WeatherIcon({ cctvId, displayName }) {
         ...prevData,
         [cctvId]: weatherToIndex[code] ?? null,
       }));
+      setLoading(false);
     } catch (err) {
       console.error(`${cctvId} 날씨 가져오기 실패:`, err);
       setLoading(true);
@@ -93,13 +94,13 @@ export default function WeatherIcon({ cctvId, displayName }) {
 
 
   return (
-    <div className="relative border border-black h-44 w-2/5 mx-auto  mt-8">
+    <div className="relative border border-black flex justify-center  mx-auto  mt-8">
      {loading ? (
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       ) : (
         weatherData[cctvId] !== undefined &&
         weatherData[cctvId] !== null && (
-          <div className="w-16 h-16">{iconLists[weatherData[cctvId]]}</div>
+          <div className="w-24 h-24">{iconLists[weatherData[cctvId]]}</div>
         )
       )}
     </div>
