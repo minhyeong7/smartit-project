@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
-import { gettemperature } from "../service/weather";
+import { getweather } from "../service/weather";
 
 export default function Temperature({ cctvId }) {
   const [tempData, setTempData] = useState(null); // 숫자 데이터
-
   const [error, setError] = useState(null);
 
   const fetchTemp = async () => {
     try {
-  
-      const data = await gettemperature(cctvId); // { cctvId, temperature }
-      setTempData(data.temperature); // 숫자만 저장
+      const data = await getweather(cctvId); // 날씨 API에서 온도도 함께 받아옴
+      setTempData(data.temperature); // 온도 데이터 저장
     } catch (err) {
       setError(err.message);
       

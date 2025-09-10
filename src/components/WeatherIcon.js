@@ -6,7 +6,7 @@ import { getweather } from "../service/weather";
 
 export default function WeatherIcon({ cctvId, displayName }) {
   const [weatherData, setWeatherData] = useState({});
-   const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const iconLists = [
     <img className="w-full h-full" src="https://cdn-icons-png.flaticon.com/128/1163/1163662.png" alt="맑음" width="32" height="48" />,
@@ -94,7 +94,7 @@ export default function WeatherIcon({ cctvId, displayName }) {
 
 
   return (
-    <div className="relative flex justify-center mx-auto  mt-8">
+    <div className="relative flex justify-center mx-auto mt-8">
      {loading ? (
         <div className="w-12 h-12 mt-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       ) : (
