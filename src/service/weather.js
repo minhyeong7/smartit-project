@@ -8,24 +8,24 @@ import tempData from '../mockData/mockTempData.json'
 //------------------------------------------------------------------
 
 
-// 날씨 아이콘 서버에서 불러오기 
-//  export async function getweather(cctvId) {
-//   const res = await fetch(`${server}/weather/icon/${cctvId}/`)
+// 날씨 아이콘과 온도 서버에서 불러오기 
+export async function getweather(cctvId) {
+  const res = await fetch(`${server}/weather/icon/${cctvId}/`)
 
-//   if(!res.ok){
-//     throw new Error(res.statusText + "Error");
-//   }
+  if(!res.ok){
+    throw new Error(res.statusText + "Error");
+  }
 
-//   return await res.json();
-//  }
+  return await res.json();
+}
 
 // 목데이터로 날씨아이콘 가져오기
-export async function getweather(cctvId) {
-  // CCTV ID에 맞는 데이터 찾기
-  const result = weatherIconData.find(item => item.cctvId === cctvId);
+// export async function getweather(cctvId) {
+//   // CCTV ID에 맞는 데이터 찾기
+//   const result = weatherIconData.find(item => item.cctvId === cctvId);
 
-  return result;
-}
+//   return result;
+// }
 
 
 
