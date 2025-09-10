@@ -35,7 +35,7 @@ export default function Temperature({ cctvId }) {
   return (
     <>
     {tempData &&
-    <div className="text-center ">
+    <div className="text-center mt-2">
      
       <div className="text-sm text-gray-500">{formattedDate}</div>
       <div className="text-xl font-semibold text-gray-800  inline-block px-4 ">

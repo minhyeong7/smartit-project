@@ -56,7 +56,7 @@ export default function FlowStatus({ cctvId }) {
   const statusStyle = getStatusStyle(flowData.status);
 
   return (
-    <div className="relative  w-full flex justify-center items-center gap-2 text-blue-400">
+    <div className="relative  w-full flex justify-center items-center gap-2 text-blue-400 mt-2">
       <span className="font-semibold text-lg">현재 수위:</span>
       <div
         className="flex  items-center gap-2 cursor-pointer px-3 py-1 rounded-full transition-all duration-200 hover:shadow-md border"
