@@ -1,0 +1,14 @@
+[
+  {
+    "cctvId": "CCTV001",
+    "temperature": 27.3
+  },
+  {
+    "cctvId": "CCTV002",
+    "temperature": 22.8
+  },
+  {
+    "cctvId": "CCTV003",
+    "temperature": 19.5
+  }
+]

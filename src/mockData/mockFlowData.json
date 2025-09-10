@@ -1,0 +1,32 @@
+[
+  {
+    "cctvId": "CCTV001",
+    "status": "danger",
+    "before_depth": 120,
+    "after_depth": 145,
+    "depth_increase": 25,
+    "before_velocity": 1.2,
+    "after_velocity": 1.8,
+    "velocity_increase": 0.6
+  },
+  {
+    "cctvId": "CCTV002",
+    "status": "warning",
+    "before_depth": 80,
+    "after_depth": 95,
+    "depth_increase": 15,
+    "before_velocity": 0.8,
+    "after_velocity": 1.1,
+    "velocity_increase": 0.3
+  },
+  {
+    "cctvId": "CCTV003",
+    "status": "safe",
+    "before_depth": 50,
+    "after_depth": 52,
+    "depth_increase": 2,
+    "before_velocity": 0.5,
+    "after_velocity": 0.6,
+    "velocity_increase": 0.1
+  }
+]

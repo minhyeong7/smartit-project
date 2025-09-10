@@ -7,8 +7,8 @@ import { getrader } from "../service/rader";
 import ReportModal from "./ReportModal";
 import AlertModal from "./AlertModal";
 import LaunchModal from "./LaunchModal";
-import WeatherIcon from "./WeatherIcon";
-import FlowStatus from "./FlowStatus";
+import WeatherCard from "./WeatherCard";
+
 
 export default function RescueButton() {
   const [reportResult, setreportResult] = useState(null);
@@ -90,7 +90,7 @@ export default function RescueButton() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center gap-6">
+    <div className="h-full flex flex-col items-center gap-12">
       <div className="bg-white border rounded-lg p-6 shadow-md w-80 flex flex-col items-center gap-4">
         {/* CCTV 선택 리스트박스 */}
         <div className="w-full">
@@ -111,14 +111,7 @@ export default function RescueButton() {
           </select>
         </div>
 
-        {/* WeatherIcon과 FlowStatus를 함께 배치 */}
-        <div className="flex items-center justify-center gap-3 w-full">
-          <WeatherIcon cctvId={selectedCctv} displayName={selectedCctvData?.name} />
-          <div className="inline-block">
-            <FlowStatus cctvId={selectedCctv} />
-          </div>
-        </div>
-        
+
         {/* 구조 기능 버튼들 */}
         <div className="w-full flex flex-col gap-3">
           <button
@@ -180,6 +173,8 @@ export default function RescueButton() {
           </button>
         </div>
       </div>
+
+      <WeatherCard />
 
       {/* 모달 */}
       <ReportModal reportResult={reportResult} onClose={() => setreportResult(null)} />

@@ -1,5 +1,4 @@
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import WeatherPage from './components/WeatherPage'
 import HomePage from './components/HomePage'
 import NotFoundPage from './components/NotFoundPage'
 import RescueList from './components/RescueList'
@@ -16,7 +15,6 @@ export default function App(){
       <Routes>
         <Route path='/' element={ <Layout />}>
           <Route index element={ <HomePage />} />
-          <Route path='weathers' element={ <WeatherPage />} />
           <Route path='rescues' element={ <RescueList />} />
           <Route path='cctvs' element={ <RescueButton />} />
         </Route>
