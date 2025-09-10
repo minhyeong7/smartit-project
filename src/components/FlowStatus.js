@@ -4,12 +4,12 @@ import { getflowstatus } from "../service/weather"; // weather.js에서 import
 
 export default function FlowStatus({ cctvId }) {
   const [flowData, setFlowData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  
   const [showTooltip, setShowTooltip] = useState(false);
 
   // 수위/유속 데이터 가져오기
   const fetchFlowData = async () => {
-    setLoading(true);
+    
     try {
 
       const data = await getflowstatus(cctvId); // weather.js의 함수 사용
@@ -18,7 +18,7 @@ export default function FlowStatus({ cctvId }) {
     } catch (error) {
       console.error('Flow data fetch error:', error);
     } finally {
-      setLoading(false);
+      
     }
   };
 
@@ -47,30 +47,17 @@ export default function FlowStatus({ cctvId }) {
     return () => clearInterval(interval);
   }, [cctvId]);
 
-  if (loading) {
-    return (
-      <div className="flex  gap-2 text-gray-500">
-        <div class="w-5 h-5 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  
 
   if (!flowData) {
-    return (
-
-       <div className="flex  gap-2 text-gray-500">
-        <div class="w-5 h-5 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-      // <div className="flex items-center gap-2 text-gray-400">
-      //   <span className="text-sm">데이터 없음</span>
-      // </div>
-    );
+    return null
   }
 
   const statusStyle = getStatusStyle(flowData.status);
 
   return (
-    <div className="relative border border-black h-1/4 w-1/4">
+    <div className="relative  w-full flex justify-center items-center gap-2 text-blue-400">
+      <span className="font-semibold text-lg">현재 수위:</span>
       <div
         className="flex  items-center gap-2 cursor-pointer px-3 py-1 rounded-full transition-all duration-200 hover:shadow-md border"
         style={{ 
@@ -85,7 +72,7 @@ export default function FlowStatus({ cctvId }) {
           {statusStyle.text}
         </div>
       </div>
-
+        
       {/* 툴팁  커서올리면 나타나는 곳*/} 
       {showTooltip && (
         <div className="absolute z-50 bg-gray-800 text-white text-sm rounded-lg p-2 shadow-lg -top-20 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
