@@ -90,7 +90,7 @@ export default function RescueButton() {
   };
 
   return (
-    <div className="h-full flex flex-col items-center gap-12">
+    <div className="h-full flex flex-col items-center gap-8">
       <div className="bg-white border rounded-lg p-6 shadow-md w-80 flex flex-col items-center gap-4">
         {/* CCTV 선택 리스트박스 */}
         <div className="w-full">
