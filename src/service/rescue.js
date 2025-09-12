@@ -14,20 +14,20 @@ export async function getrescue(cctvId) {
 }
 
 // // 모든 구조 로그 기록 불러오기
-// export async function getallrescue() {
-//   const res= await fetch(`${server}/sms/list-all/`);
+export async function getallrescue() {
+  const res= await fetch(`${server}/sms/list-all/`);
 
-//   if(!res.ok){
-//     throw new Error(res.statusText + " Error");
-//   }
+  if(!res.ok){
+    throw new Error(res.statusText + " Error");
+  }
 
-//   return await res.json();
-// }
+  return await res.json();
+}
 
 // 목업 데이터 구조 로그 기록 불러오기
-export async function getallrescue() {
-  return rescueData;
-}
+// export async function getallrescue() {
+//   return rescueData;
+// }
 
 // 구조 신고하기
 export async function postrescue(rescuedata) {
