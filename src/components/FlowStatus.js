@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { getflowstatus } from "../service/weather"; // weather.js에서 import
+import { sendWeatherDangerAlert } from "../service/alert"; // 새로운 기상 위험 알림 함수
 
 
 export default function FlowStatus({ cctvId }) {
   const [flowData, setFlowData] = useState(null);
-  
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isAlertSending, setIsAlertSending] = useState(false); // 알림 전송 중 상태
 
   // 수위/유속 데이터 가져오기
   const fetchFlowData = async () => {
@@ -38,6 +39,41 @@ export default function FlowStatus({ cctvId }) {
     }
   };
 
+  // 현장 위험 알림 전송 함수
+  const handleWeatherAlert = async () => {
+    if (isAlertSending) return; // 중복 전송 방지
+    
+    try {
+      setIsAlertSending(true);
+      
+      // FlowStatus에서 받은 status를 danger_level로 변환
+      const dangerLevelMap = {
+        'danger': '위험',
+        'warning': '경계', 
+        'caution': '주의',
+        'attention': '관심',
+        'safe': '안전'
+      };
+      
+      const result = await sendWeatherDangerAlert({
+        cctv_id: cctvId,
+        danger_level: dangerLevelMap[flowData.status] || '안전'
+      });
+      
+      if (result.success) {
+        console.log(`기상 위험 알림 전송 성공: ${result.message}`);
+        // 성공 시 시각적 피드백 (선택사항)
+      } else {
+        console.error('기상 위험 알림 전송 실패:', result.message);
+      }
+      
+    } catch (error) {
+      console.error('기상 위험 알림 전송 오류:', error);
+    } finally {
+      setIsAlertSending(false);
+    }
+  };
+
   useEffect(() => {
     // 초기 로드
     fetchFlowData();
@@ -59,7 +95,9 @@ export default function FlowStatus({ cctvId }) {
     <div className="relative  w-full flex justify-center items-center gap-2 text-blue-400 mt-2">
       <span className="font-semibold text-lg">현재 수위:</span>
       <div
-        className="flex  items-center gap-2 cursor-pointer px-3 py-1 rounded-full transition-all duration-200 hover:shadow-md border"
+        className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all duration-200 hover:shadow-md border ${
+          isAlertSending ? 'cursor-wait opacity-75' : 'cursor-pointer hover:scale-105'
+        }`}
         style={{ 
           backgroundColor: statusStyle.bg,
           color: statusStyle.color,
@@ -67,9 +105,11 @@ export default function FlowStatus({ cctvId }) {
         }}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
+        onClick={handleWeatherAlert}
+        title={isAlertSending ? '알림 전송 중...' : '클릭하여 현장 위험 알림 전송'}
       >
-        <div className="text-sm font-bold whitespace-nowrap inline-block ">
-          {statusStyle.text}
+        <div className="text-sm font-bold whitespace-nowrap inline-block">
+          {isAlertSending ? '전송 중...' : statusStyle.text}
         </div>
       </div>
         
