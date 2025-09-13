@@ -78,7 +78,8 @@ export default function RescueList() {
               {data.length > 0 ? (
                 data.map((item, index) => (
                   <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3">{index + 1}</td>
+                    {/* 번호는 역순이 아니라 순차 증가 (오래된 항목 1번, 최신 항목 최대 번호) */}
+                    <td className="px-4 py-3">{data.length - index}</td>
                     <td className="px-4 py-3 text-blue-600">
                       {item.location ? getCctvName(item.location) : '위치 알 수 없음'}
                     </td>
